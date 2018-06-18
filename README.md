@@ -8,3 +8,5 @@ This Folder contains the SD model, the EMA calculations, the PRIM analysis, and 
 
 Final model cleaned.mdl contains the SD model in text
 
+PRIM No policy final 5000 runs.ipynb contains the code for 5000 model runs
+
