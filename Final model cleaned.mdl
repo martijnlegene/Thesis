@@ -1,0 +1,4445 @@
+{UTF-8}
+"2030, fast adoption"= WITH LOOKUP (
+	Time,
+		([(2015,0)-(2100,1)],(2015,1e-005),(2030,0.002),(2040,0.3),(2050,0.5),(2070,0.7),(2100\
+		,0.95) ))
+	~	Dmnl
+	~		|
+
+"2030, slow adoption"= WITH LOOKUP (
+	Time,
+		([(2015,0)-(2100,1)],(2015,1e-005),(2030,0.002),(2050,0.3),(2070,0.5),(2100,0.7) ))
+	~	Dmnl
+	~		|
+
+"2035, fast adoption"= WITH LOOKUP (
+	Time,
+		([(2015,0)-(2100,1)],(2015,1e-005),(2035,0.002),(2045,0.3),(2055,0.5),(2075,0.7),(2100\
+		,0.95) ))
+	~	Dmnl
+	~		|
+
+"2035, slow adoption"= WITH LOOKUP (
+	Time,
+		([(2015,0)-(2100,1)],(2015,1e-005),(2035,0.002),(2055,0.3),(2075,0.5),(2100,0.7) ))
+	~	Dmnl
+	~		|
+
+Acceptable travel time[Zone]=
+	((1-Penetration rate AV)*Initial travel time[Zone])+Travel time[Zone]*(Penetration rate AV\
+		*(Value of time car driver/Value of time in private AV))
+	~	hour
+	~		|
+
+Accessibility to jobs[Zone]=
+	Total jobs in GCA*(Travel time[Zone]^Exponent travel time)
+	~	job/hour
+	~	http://www.systemdynamics.org/conferences/2004/SDS_2004/PAPERS/119SANDE.pdf p.14
+		Zie artikel Weibull (zelfde als gravitational model)
+		sum Jobs * travel time ^-beta
+	|
+
+Accessibility to jobs per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Accessibility to jobs
+	[Zone!], 0)) / Number of zones per district type[City center] ~~|
+Accessibility to jobs per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Accessibility to jobs[Zone!], 0)) /Number of zones per district type[Other urban districts\
+		] ~~|
+Accessibility to jobs per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Accessibility to jobs
+	[Zone!], 0)) / Number of zones per district type[Suburbs] ~~|
+Accessibility to jobs per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Accessibility to jobs
+	[Zone!], 0)) / Number of zones per district type[Rural areas]
+	~	place/hour
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Actual decommissioning of parking surface[Zone]= DELAY FIXED (
+	  Demolition parking places[Zone] , Road lane decommissioning delay , 0)
+	~	car/Year
+	~		|
+
+Actual decommissioning of road lanes[Zone]= DELAY FIXED (
+	  Decrease in number of lanes[Zone] , Road lane decommissioning delay , 0)
+	~	lane/Year
+	~		|
+
+Actual road capacity use compared to initial optimal per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Actual road capacity use compared to initial optimum
+	[Zone!], 0)) / Number of zones per district type[City center] ~~|
+Actual road capacity use compared to initial optimal per district type[Other urban districts\
+		]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Actual road capacity use compared to initial optimum[Zone!], 0)) /Number of zones per district type\
+		[Other urban districts] ~~|
+Actual road capacity use compared to initial optimal per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Actual road capacity use compared to initial optimum
+	[Zone!], 0)) / Number of zones per district type[Suburbs] ~~|
+Actual road capacity use compared to initial optimal per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Actual road capacity use compared to initial optimum
+	[Zone!], 0)) / Number of zones per district type[Rural areas]
+	~	Dmnl
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Actual road capacity use compared to initial optimum[Zone]=
+	ZIDZ ( Actual vehicle density per lane[Zone] , Optimal road use density[Zone] )
+	~	Dmnl
+	~	=Capacity saturation
+	|
+
+Actual vehicle density per lane[Zone]=
+	ZIDZ(Total traffic volume in morning peak[Zone] , Number of lanes[Zone])
+	~	car/(hour*lane)
+	~		|
+
+Adjustment time for road use density=
+	1
+	~	Year
+	~		|
+
+Aging adults[Zone]=
+	( 1 - Death rate adult ) * Population adult[Zone] / Time in adult
+	~	person/Year
+	~		|
+
+Aging childs[Zone]=
+	( 1 - Death rate child ) * Population child[Zone] / average time in child
+	~	person/Year
+	~		|
+
+Aging teens[Zone]=
+	( 1 - Death rate teen ) * Population teen[Zone] / average time in teen
+	~	person/Year
+	~		|
+
+Allocated land[Zone,Parking]= INTEG (
+	Allocation[Zone,Parking]-Reallocation[Zone,Parking],
+		Initial land used [Zone,Parking]) ~~|
+Allocated land[Zone,Road]= INTEG (
+	Allocation[Zone,Road]-Reallocation[Zone,Road],
+		Initial land used [Zone,Road]) ~~|
+Allocated land[Zone,Housing]= INTEG (
+	Allocation[Zone,Housing]-Reallocation[Zone,Housing],
+		Initial land used [Zone,Housing]) ~~|
+Allocated land[Zone,Business]= INTEG (
+	Allocation[Zone,Business]-Reallocation[Zone,Business],
+		Initial land used [Zone,Business]) ~~|
+Allocated land[Zone,Other]= INTEG (
+	Allocation[Zone,Other]-Reallocation[Zone,Other],
+		Initial land used[Zone,Other])
+	~	m*m
+	~		|
+
+Allocation[Zone, Land type]=
+	ALLOCATE AVAILABLE(New demand for land type[Zone,Land type], Priority vector[Zone,Land type\
+		,ptype], Unallocated land[Zone]/Allocation delay)
+	~	(m*m)/Year
+	~	road surface and unallocated land divided by construction delay, because road demand \
+		is not per year
+		MIN(Demand for new parking surface[Zone],Unallocated land[Zone]*Focus on \
+		parking)/Allocation delay
+	|
+
+Allocation building surface[Zone,Housing]=
+	(Allocation[Zone,Housing]/Initial surface per place[Zone]) ~~|
+Allocation building surface[Zone,Business]=
+	(Allocation[Zone,Business]/Initial surface per place[Zone])
+	~	place/Year
+	~		|
+
+Allocation delay=
+	1
+	~	Year
+	~		|
+
+Allocation extra=
+	1
+	~	Dmnl
+	~	Extra parameter - used for elasticity when allocation is CES (ptype=5)
+	|
+
+Allocation integer type=
+	0
+	~	Dmnl
+	~	Set to 10 for integer allocations; otherwise 0.
+	|
+
+Allocation new road lanes[Zone]=
+	ZIDZ(Allocation[Zone,Road],Road length[Zone])/Lane width[Zone]
+	~	lane/Year
+	~	IF THEN ELSE ( Number of lanes needed to facilitate traffic[Zone] - Lanes available \
+		including under construction[Zone] 
+		> Threshold value for new lane construction , PULSE( Time , TIME STEP ) / TIME STEP \
+		, 0 )*Allocated land for lane expansion
+		[Zone]
+	|
+
+Allocation parking surface[Zone]=
+	(Allocation[Zone,Parking]/Parking surface per car)
+	~	car/Year
+	~		|
+
+Allocation priority[Zone,Land type]=
+	MIN(New demand for land type[Zone,Land type]/SUM(New demand for land type[Zone,Land type\
+		!]),Policy allocation priority[Land type])
+	~	Dmnl
+	~	Focus on jobs, Focus on housing, Focus on parking, Focus on road
+		0.4, 0.55, 0.13, 0.02
+	|
+
+Allocation priority type=
+	4
+	~	Dmnl
+	~	ptype 0 - Fixed Quantity
+		ptype 1 - Rectangular
+		ptype 2 - Triangular
+		ptype 3 - Normal
+		ptype 4 - Exponential	
+		ptype 5 - Constant Elasticity
+	|
+
+Allocation priority width=
+	0.01
+	~	Dmnl
+	~		|
+
+Attention for active modes=
+	1
+	~	euro
+	~	To lower the costs of traveling with the mode by 'x'
+	|
+
+Attention for AV traffic management=
+	0
+	~	euro
+	~	To lower the costs of traveling with the mode by 'x'
+	|
+
+Attention for car traffic management=
+	-3
+	~	euro
+	~		|
+
+Attention for PT=
+	0
+	~	euro
+	~	To lower the costs of traveling with the mode by 'x'
+	|
+
+Attractiveness to live in district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Attractiveness to live in zone
+	[Zone!], 0)) / Number of zones per district type[City center] ~~|
+Attractiveness to live in district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Attractiveness to live in zone[Zone!], 0)) /Number of zones per district type[Other urban districts\
+		] ~~|
+Attractiveness to live in district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Attractiveness to live in zone
+	[Zone!], 0)) / Number of zones per district type[Suburbs] ~~|
+Attractiveness to live in district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Attractiveness to live in zone
+	[Zone!], 0)) / Number of zones per district type[Rural areas]
+	~	Dmnl
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Attractiveness to live in zone[Zone]=
+	Factor Accessibility to jobs[Zone]*Coefficient Accessibility to jobs
+	+Factor Fraction other land[Zone]*Coefficient Fraction other land
+	-Factor Fraction road[Zone]*Coefficient Fraction road
+	-"Factor Over-vacancy"[Zone]*"Coefficient over-vacancy"
+	+Factor Proximity to nature[Zone]*Coefficient Proximity to nature
+	+Factor Proximity to the city[Zone]*Coefficient Proximity to the city
+	~	Dmnl
+	~	((Constant accessibility*Accessibility to jobs[Zone])+(Constant housing \
+		opportunities*Available houses[Zone]))
+	|
+
+AV traffic volume in morning peak[Zone]=
+	(((Incoming car commuter trips in morning peak[Zone])
+	/Fraction commuter trips in morning peak[Zone])
+	*Number of zones to cross[Zone]
+	*Penetration rate AV
+	+((Empty vehicle trips to avoid parking
+	+New uses for cars)*Penetration rate AV*Incoming car commuter trips in morning peak[\
+		Zone]))
+	/ Persons per car in morning peak / Duration of morning peak
+	~	car/hour
+	~	+60/(Empty vehicle trips to avoid parking[Zone]) to take the number of \
+		trips per hour extra
+	|
+
+Available houses[Zone]=
+	MAX((Buildings[Zone,Housing]-Households[Zone]),0)/One year
+	~	house/Year
+	~		|
+
+Available places[Zone]=
+	Available houses[Zone]*Average household size
+	~	person/Year
+	~		|
+
+Available places adult[Zone]=
+	Available places[Zone]*Fraction adult[Zone]
+	~	person/Year
+	~		|
+
+Available places child[Zone]=
+	Available places[Zone]*Fraction child[Zone]
+	~	person/Year
+	~		|
+
+Available places elderly[Zone]=
+	Available places[Zone]*Fraction elderly[Zone]
+	~	person/Year
+	~		|
+
+Available places teen[Zone]=
+	Available places[Zone]*Fraction teen[Zone]
+	~	person/Year
+	~		|
+
+Average accessibility to jobs=
+	SUM( Accessibility to jobs[Zone!] )/ELMCOUNT(Zone)
+	~	job/hour
+	~		|
+
+Average attractiveness per zone=
+	Total attractiveness to live in city/ELMCOUNT(Zone)
+	~	Dmnl
+	~		|
+
+Average fraction other land=
+	SUM( Fraction per land use category[Zone!,Other] )/ELMCOUNT(Zone)
+	~	Dmnl
+	~		|
+
+Average fraction road=
+	SUM( Fraction per land use category[Zone!,Road] )/ELMCOUNT(Zone)
+	~	Dmnl
+	~		|
+
+Average fraction unallocated land=
+	SUM( Fraction unallocated land[Zone!] )/ELMCOUNT(Zone)
+	~	Dmnl
+	~		|
+
+Average household size=
+	2.1
+	~	person/house
+	~	Denmark in figures 2015. Statistics Denmark
+	|
+
+"Average over-vacancy"=
+	SUM( "Over-vacancy"[Zone!] )/ELMCOUNT(Zone)
+	~	Dmnl
+	~		|
+
+Average population density=
+	SUM( Population density[Zone!] )/ELMCOUNT(Zone)
+	~	person/(m*m)
+	~		|
+
+Average proximity to nature=
+	SUM( Proximity to nature[Zone!] )/ELMCOUNT(Zone)
+	~	Dmnl
+	~		|
+
+Average proximity to the city=
+	SUM( Proximity to the city[Zone!] )/ELMCOUNT(Zone)
+	~	Dmnl
+	~		|
+
+Average road width[Zone]:INTERPOLATE::=
+	GET XLS DATA( '?Tag' , 'Width' , '1' , 'B2' )
+	~	m
+	~		|
+
+average time in child=
+	11
+	~	Year
+	~		|
+
+Average time in house=
+	40
+	~	Year
+	~	Assumption: average time in house = 15 years
+	|
+
+average time in teen=
+	6
+	~	Year
+	~		|
+
+Average zone length[Zone]=
+	(SUM(Zone length[Zone!])/km to m ratio)/ELMCOUNT(Zone)
+	~	km
+	~		|
+
+Births[Zone]=
+	Fertility[Zone]/Time in adult
+	~	person/Year
+	~		|
+
+Building delay order=
+	3
+	~	Dmnl
+	~		|
+
+Building possibility switch[Zone]= WITH LOOKUP (
+	District of zone[Zone],
+		([(0,0)-(11,1)],(1,0),(2,0),(3,1),(4,0),(5,0),(6,0),(7,0.5),(8,1),(9,0),(10,0.5),(11\
+		,0) ))
+	~	Dmnl
+	~	Possilibity to create new land for buildings, 0 in city, 0.5 in suburbs, 1 in rest
+		1=amager
+		2=christianshavn
+		3=eastern zealand
+		4=frederiksberg
+		5=indre by
+		6=norrebro
+		7=northern suburbs
+		8=northern zealand
+		9=osterbro
+		10=vestegnen
+		11=vesterbro
+	|
+
+Building time=
+	1.5
+	~	Year
+	~		|
+
+Buildings[Zone,Housing]= INTEG (
+	Construction and procurement buildings[Zone,Housing]-Demolition buildings[Zone,Housing\
+		]-Renovation of buildings[Zone,Housing],
+		Initial places[Zone,Housing]) ~~|
+Buildings[Zone,Business]= INTEG (
+	Construction and procurement buildings[Zone,Business]-Demolition buildings[Zone,Business\
+		]-Renovation of buildings[Zone,Business],
+		Initial places[Zone,Business])
+	~	place
+	~		|
+
+Buildings available including under construction[Zone,Housing]=
+	Buildings under construction[Zone,Housing] + Buildings[Zone,Housing] ~~|
+Buildings available including under construction[Zone,Business]=
+	Buildings under construction[Zone,Business] + Buildings[Zone,Business]
+	~	place
+	~		|
+
+Buildings being demolished[Zone,Housing]= INTEG (
+	Demolition buildings[Zone,Housing]-Reallocation of building surface[Zone,Housing],
+		0) ~~|
+Buildings being demolished[Zone,Business]= INTEG (
+	Demolition buildings[Zone,Business]-Reallocation of building surface[Zone,Business],
+		0)
+	~	place
+	~		|
+
+Buildings under construction[Zone,Housing]= INTEG (
+	Allocation building surface[Zone,Housing]-Construction and procurement buildings[Zone\
+		,Housing]+Renovation of buildings[Zone,Housing],
+		Initial buildings under construction[Zone,Housing]) ~~|
+Buildings under construction[Zone,Business]= INTEG (
+	Allocation building surface[Zone,Business]-Construction and procurement buildings[Zone\
+		,Business]+Renovation of buildings[Zone,Business],
+		Initial buildings under construction[Zone,Business])
+	~	place
+	~		|
+
+Built up reallocation[Zone,Housing]=
+	Reallocation of building surface[Zone,Housing]*Initial surface per place[Zone] ~~|
+Built up reallocation[Zone,Business]=
+	Reallocation of building surface[Zone,Business]*Initial surface per place[Zone]
+	~	(m*m)/Year
+	~	(Allocated land[Zone,Housing]/Construction aging)+(Reallocation of \
+		building surface[Zone,Housing]/Building density[Zone,Housing])
+	|
+
+Car traffic management=
+	0.1
+	~	Dmnl
+	~	10% vernieuwing aan de weg: Expert Paul van Koningsbruggen
+		includes road decay
+	|
+
+Car traffic volume in morning peak[Zone]= ACTIVE INITIAL (
+	(((Incoming car commuter trips in morning peak[Zone]/Duration of morning peak)/Fraction commuter trips in morning peak
+	[Zone])/Persons per car in morning peak)*Number of zones to cross[Zone]
+	*(1-Penetration rate AV),
+		(Initial trips in morning peak[Zone]/Persons per car in morning peak/Duration of morning peak\
+		)*Number of zones to cross[Zone])
+	~	car/hour
+	~		|
+
+Cars per person= INTEG (
+	Increase in cars per person-Decrease in cars per person,
+		Initial cars per person)
+	~	car/person
+	~	Should asymptote to 10% of initial cars per person
+	|
+
+Carsharing population= INTEG (
+	Increase in carsharing population,
+		Initial carsharing population)
+	~	person
+	~		|
+
+Carsharing rate=
+	0.3
+	~	1/Year
+	~	test
+		Depends on the penetration rate of (shared) AV's
+		Depends on the way people will use this vehicle
+	|
+
+Change in cars per person=
+	Cars per person/Initial cars per person
+	~	Dmnl
+	~		|
+
+Change in road use density[Zone]=
+	( Goal of optimal road use density[Zone] - Optimal road use density[Zone] ) / Adjustment time for road use density
+	~	car/(hour*lane)/Year
+	~		|
+
+Coefficient Accessibility to jobs=
+	0.45
+	~	Dmnl
+	~	Employment accessibility (number of employments * 10^-5)
+		https://ac.els-cdn.com/S073988591530024X/1-s2.0-S073988591530024X-main.pdf?_tid=8bdb7\
+		94c-0da4-11e8-9d7b-00000aacb35f&acdnat=1518186289_7caa95992cba7e0107a24dea9\
+		a50e218
+		
+		Final number according to danish survey by Skifter Andersen (2011)
+	|
+
+Coefficient Fraction other land=
+	0.25
+	~	Dmnl
+	~		|
+
+Coefficient Fraction road=
+	0.64
+	~	Dmnl
+	~		|
+
+"Coefficient over-vacancy"=
+	0.72
+	~	Dmnl
+	~	http://www.significance.nl/papers/2005-trr-accessibility-residential-locati\
+		on.pdf
+	|
+
+Coefficient Proximity to nature=
+	0.76
+	~	Dmnl
+	~		|
+
+Coefficient Proximity to the city=
+	0.36
+	~	Dmnl
+	~		|
+
+Constant active modes=
+	-0.213464
+	~	1/euro
+	~	Excel utility function
+		LOS:niks
+	|
+
+Constant parking hassle=
+	0.01
+	~	Dmnl
+	~		|
+
+Constant private car:=
+	GET XLS DATA( '?Tag' , 'Modal split' , '1' , 'B2' )
+	~	1/euro
+	~	Excel utility function
+		LOS:-0.398
+	|
+
+Constant PT=
+	-0.241549
+	~	1/euro
+	~	Excel utility function
+		LOS:-0.494
+	|
+
+Constant trip generation:INTERPOLATE::=
+	EXP(-4.65206)
+	~	1/place
+	~	From regression analysis EXP(-8.34533)
+	|
+
+Construction aging=
+	80
+	~	Year
+	~		|
+
+Construction and procurement buildings[Zone,Housing]= 
+	DELAY N ( Allocation building surface[Zone,Housing]+Renovation of buildings[Zone,Housing\
+		], Building time, Buildings under construction[Zone,Housing]/Building time , Building delay order\
+		 ) ~~|
+Construction and procurement buildings[Zone,Business]= 
+	DELAY N ( Allocation building surface[Zone,Business]+Renovation of buildings[Zone,Business\
+		], Building time, Buildings under construction[Zone,Business]/Building time , Building delay order\
+		 )
+	~	place/Year
+	~	Buildings under construction[Zone,Housing]/Building time
+	|
+
+Construction and procurement parking places[Zone]= 
+	DELAY N ( Allocation parking surface[Zone]+Renovation of parking[Zone], Construction time parkings\
+		, Parking places under construction[Zone]/Construction time parkings , Construction delay order\
+		 )
+	~	car/Year
+	~		|
+
+Construction delay order=
+	2
+	~	Dmnl
+	~		|
+
+Construction time new road lanes=
+	5
+	~	Year
+	~		|
+
+Construction time parkings=
+	0.5
+	~	Year
+	~		|
+
+Cost and hassle of parking[Zone]=
+	(Exchange rate DKK to Euro * Parking price[Zone]*Parking price multiplier * Idle time car\
+		 * hours of paid parking) + (Delay value of time * Time looking for a parking spot
+	[Zone])
+	~	euro
+	~		|
+
+Costs private AV[Zone]=
+	IF THEN ELSE(Penetration rate AV < 0.1, 10000, (Operating costs per km car*Initial average trip distance car\
+		[Zone])+(Value of time in private AV*Travel time[Zone])
+	+((Cost and hassle of parking[Zone]-(Time looking for a parking spot[Zone]*Delay value of time\
+		))*Constant parking hassle))
+	~	euro
+	~	Really high costs (10000) if av is not yet available
+	|
+
+Costs private car[Zone]=
+	(Operating costs per km car*Initial average trip distance car[Zone])+(Value of time car driver\
+		*Travel time[Zone])
+	
+	+(Cost and hassle of parking[Zone]*Constant parking hassle)
+	~	euro
+	~		|
+
+Costs shared AV[Zone]=
+	IF THEN ELSE(Penetration rate AV < 0.1, 10000, (Operating costs per km car)*Initial average trip distance car
+	[Zone]+(Value of time car passenger*Travel time[Zone]))
+	~	euro
+	~	Really high costs (10000) if av is not yet available
+	|
+
+Costs shared car[Zone]=
+	(Operating costs per km car)*Initial average trip distance car[Zone]+(Value of time car passenger
+	*Travel time[Zone])
+	~	euro
+	~		|
+
+Death rate adult=
+	69.2/1000
+	~	Dmnl
+	~	Percentage of age 12 that does not make it until age 65
+		Adult mortality rate 51.8/1000 female, 86.7/1000 male = 138.5/2 = 69.2 average
+		Source: \
+		https://knoema.com/atlas/Denmark/topics/Health/Health-Status/Female-adult-m\
+		ortality-rate
+		https://knoema.com/atlas/Denmark/topics/Health/Health-Status/Male-adult-mor\
+		tality-rate
+	|
+
+Death rate child=
+	3.5/1000
+	~	Dmnl
+	~	Under-five mortality rate is the probability per 1,000 that a newborn baby will die \
+		before reaching age five, if subject to current age-specific mortality \
+		rates.
+		Source: https://knoema.com/atlas/Denmark/Child-mortality-rate
+	|
+
+Death rate teen=
+	69.2/1000
+	~	Dmnl
+	~	Percentage of age 12 that does not make it until age 65
+		Adult mortality rate 51.8/1000 female, 86.7/1000 male = 138.5/2 = 69.2 average
+		Source: \
+		https://knoema.com/atlas/Denmark/topics/Health/Health-Status/Female-adult-m\
+		ortality-rate
+		https://knoema.com/atlas/Denmark/topics/Health/Health-Status/Male-adult-mor\
+		tality-rate
+	|
+
+Deaths[Zone]=
+	Population elderly[Zone]/Life expectancy at age 64
+	~	person/Year
+	~		|
+
+Deaths adult[Zone]=
+	Population adult[Zone]*(Death rate adult/(average time in teen+Time in adult))
+	~	person/Year
+	~		|
+
+Deaths child[Zone]=
+	(Population child[Zone]*Death rate child)/average time in child
+	~	person/Year
+	~		|
+
+Deaths teen[Zone]=
+	Population teen[Zone]*(Death rate teen/(average time in teen+Time in adult))
+	~	person/Year
+	~		|
+
+Decommisioning of road lanes[Zone]= INTEG (
+	Decrease in number of lanes[Zone]-Actual decommissioning of road lanes[Zone],
+		Initial decommissioning of road lanes)
+	~	lane
+	~		|
+
+Decrease in cars per person=
+	Cars per person*(Carsharing rate*Fraction potential carsharing population)*Penetration rate AV
+	~	(car/person)/Year
+	~		|
+
+Decrease in number of lanes[Zone]=
+	IF THEN ELSE ( Number of lanes[Zone] - (Delayed number of lanes needed to facilitate traffic\
+		[Zone]) > Threshold value for lane decommissioning , PULSE( Time , TIME STEP ) , 0 \
+		)
+	~	lane/Year
+	~	(Increase in efficiency of vehicle operation[Zone]+Change in incoming \
+		trips[Zone])/Number of lanes stock[Zone]
+	|
+
+Delay order for housing demolition=
+	5
+	~	Dmnl
+	~		|
+
+Delay order for lane decommissioning=
+	3
+	~	Dmnl
+	~		|
+
+Delay order for parking decommissioning=
+	3
+	~	Dmnl
+	~		|
+
+Delay time housing demolition=
+	5
+	~	Year
+	~		|
+
+Delay time lane decommissioning=
+	5
+	~	Year
+	~	First see for 5 years if the decommissioning is really needed
+	|
+
+Delay time parking decommissioning=
+	2
+	~	Year
+	~		|
+
+Delay time travel behavior=
+	0.25
+	~	Year
+	~		|
+
+Delay value of time=
+	22.86
+	~	euro/hour
+	~	Transport transitions in Copenhagen: Comparing the cost of cars and \
+		bicycles (Gossling & Choi, 2015)
+	|
+
+Delayed acceptable travel time[Zone]= 
+	DELAY N(Acceptable travel time[Zone], Delay time travel behavior, Initial travel time\
+		[Zone], 1)
+	~	hour
+	~		|
+
+Delayed available houses[Zone]= 
+	DELAY N(Available houses[Zone], Delay time housing demolition, Available houses[Zone\
+		], Delay order for housing demolition)
+	~	house/Year
+	~		|
+
+Delayed initial population[Zone]=
+	Total population per zone[Zone]+(Total population per zone[Zone]-Forecast initial population\
+		[Zone])
+	~	person
+	~		|
+
+Delayed number of lanes needed to facilitate traffic[Zone]= 
+	DELAY N(Number of lanes needed to facilitate traffic[Zone], Delay time lane decommissioning\
+		, Initial number of lanes[Zone], Delay order for lane decommissioning)
+	~	lane
+	~		|
+
+Delayed parking demand[Zone]= 
+	DELAY N(Parking demand[Zone], Delay time parking decommissioning, Parking demand[Zone\
+		], Delay order for parking decommissioning)
+	~	car
+	~		|
+
+Delayed population in GCA= DELAY FIXED (
+	Total population in GCA, One year, SUM(Initial population[Zone!]))
+	~	
+	~		|
+
+Delayed population per zone[Zone]=
+	DELAY FIXED( Total population per zone[Zone], TIME STEP, Initial population[Zone])
+	~	
+	~		|
+
+Demand for new business surface[Zone]=
+	Demand for new jobs[Zone]*Initial surface per place[Zone]*Building possibility switch\
+		[Zone]
+	~	(m*m)/Year
+	~		|
+
+Demand for new houses[Zone]=
+	MAX((Entering population[Zone]/Average household size)-Buildings available including under construction\
+		[Zone,Housing]/One year
+,0) + Expected housing shortage[Zone]
+	+(Initial vacancy rate city*Buildings[Zone,Housing])/One year
+	~	house/Year
+	~	+(Initial vacancy*Buildings[Zone,Housing])/One year to preserve vacancy \
+		rate
+	|
+
+Demand for new jobs[Zone]=
+	Economic growth rate*Buildings[Zone,Business]
+	~	job/Year
+	~		|
+
+Demand for new parking surface[Zone]=
+	MAX(((Parking demand[Zone]-Parking available including under construction[Zone])*Parking surface per car\
+		), 0)/One year
+	~	(m*m)/Year
+	~		|
+
+Demand for new residential surface[Zone]=
+	Demand for new houses[Zone]*Initial surface per place[Zone]*Building possibility switch\
+		[Zone]
+	~	(m*m)/Year
+	~		|
+
+Demand for new road surface[Zone]=
+	(IF THEN ELSE( Actual road capacity use compared to initial optimum[Zone]>Initial level of service\
+		 :OR: 
+	Number of lanes needed to facilitate traffic[Zone] - Lanes available including under construction\
+		[Zone] > Threshold value for new lane construction
+	, 
+	PULSE( Time , TIME STEP ), 0)*Lane width[Zone]* One lane*Zone length[Zone])/One year
+	~	(m*m)/Year
+	~	MAX(Road demand[Zone] 
+		- (Lanes available including under construction[Zone]*Lane \
+		width[Zone]*Road length[Zone])/One year,0)
+	|
+
+Demolishment delay buildings=
+	1
+	~	Year
+	~		|
+
+Demolition buildings[Zone,Housing]=
+	Housing demolition[Zone] ~~|
+Demolition buildings[Zone,Business]=
+	0
+	~	place/Year
+	~		|
+
+Demolition parking places[Zone]=
+	IF THEN ELSE ( ZIDZ(Parking places[Zone] , Delayed parking demand[Zone]) > Threshold value for parking decommissioning\
+		 , PULSE( Time , TIME STEP ) , 0 )
+	~	car/Year
+	~	MAX((Parking places[Zone]-Delayed parking demand[Zone]), 0)/One \
+		year+Parking places[Zone]/Parking decay
+	|
+
+Designed speed[Zone]:INTERPOLATE::=
+	GET XLS DATA( '?Tag' , 'DesignedSpeed' , '1' , 'B2' )
+	~	km/hour
+	~		|
+
+"Dispersion of origins/destinations (sprawl)"[Zone]= ACTIVE INITIAL (
+	ZIDZ(DELAY1(Distance within acceptable travel time[Zone], One year),Distance within acceptable travel time\
+		[Zone]),
+		1)
+	~	Dmnl
+	~		|
+
+distance per car[Zone]=
+	(Designed speed[Zone]*km to m ratio)/Optimal road use density[Zone]
+	~	m*lane/car
+	~		|
+
+Distance within acceptable travel time[Zone]=
+	Acceptable travel time[Zone]*Traffic speed[Zone]
+	~	km
+	~		|
+
+Distance within acceptable travel time per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Distance within acceptable travel time
+	[Zone!], 0)) / Number of zones per district type[City center] ~~|
+Distance within acceptable travel time per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Distance within acceptable travel time[Zone!], 0)) /Number of zones per district type\
+		[Other urban districts] ~~|
+Distance within acceptable travel time per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Distance within acceptable travel time
+	[Zone!], 0)) / Number of zones per district type[Suburbs] ~~|
+Distance within acceptable travel time per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Distance within acceptable travel time
+	[Zone!], 0)) / Number of zones per district type[Rural areas]
+	~	km
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+District of zone[Zone]:INTERPOLATE::=
+	GET XLS DATA( '?Tag' , 'Archetypes' , '1' , 'B2' )
+	~	Dmnl
+	~	1=amager
+		2=christianshavn
+		3=eastern zealand
+		4=frederiksberg
+		5=indre by
+		6=norrebro
+		7=northern suburbs
+		8=northern zealand
+		9=osterbro
+		10=vestegnen
+		11=vesterbro
+	|
+
+Duration of morning peak=
+	2
+	~	hour
+	~		|
+
+Economic growth rate=
+	0.015
+	~	Dmnl/Year
+	~	GDP growth rate Denmark
+		Source:https://tradingeconomics.com/denmark/indicators
+	|
+
+Effect of actual vehicle density on level of service[Zone]= WITH LOOKUP (
+	Actual road capacity use compared to initial optimum[Zone]*Initial level of service,
+		([(0,0)-(3,2)],(0,1.2),(0.3,1.2),(0.5,1),(0.7,1),(0.9,0.95),(1,0.7),(3,0.5) ))
+	~	Dmnl
+	~	Morning peak is assumed to be 0.7 LOS, this yields a stable flow
+	|
+
+Effect of penetration rate AVs on efficiency= WITH LOOKUP (
+	Penetration rate AV,
+		([(0,0)-(1,1)],(0,0),(0.1,0.005),(0.25,0.03),(0.4,0.1),(0.8,0.5),(0.98,0.8),(1,1) )\
+		)
+	~	Dmnl
+	~		|
+
+Empty vehicle trips to avoid parking=
+	0.2
+	~	Dmnl
+	~	Voeg per zone het aantal gereduceerde parkeerplaatsen toe
+	|
+
+Entering adults[Zone]=
+	ALLOCATE AVAILABLE( Available places adult[Zone], moving priority vector[Zone, ptype\
+		] , Total moving adults)
+	~	person/Year
+	~		|
+
+Entering children[Zone]=
+	ALLOCATE AVAILABLE( Available places child[Zone], moving priority vector[Zone, ptype\
+		] , Total moving childs)
+	~	person/Year
+	~		|
+
+Entering old people[Zone]=
+	ALLOCATE AVAILABLE( Available places elderly[Zone], moving priority vector[Zone, ptype\
+		] , Total moving elderly)
+	~	person/Year
+	~		|
+
+Entering population[Zone]=
+	Entering children[Zone]+Entering teens[Zone]+Entering adults[Zone]+Entering old people\
+		[Zone]
+	~	person/Year
+	~		|
+
+Entering teens[Zone]=
+	ALLOCATE AVAILABLE( Available places teen[Zone], moving priority vector[Zone, ptype]\
+		 , Total moving teens)
+	~	person/Year
+	~		|
+
+Exchange rate DKK to Euro=
+	0.134
+	~	euro/DKK
+	~		|
+
+Expected housing shortage[Zone]=
+	MAX((Forecasted households[Zone]-Buildings[Zone,Housing]),0)/One year
+	~	house/Year
+	~		|
+
+Expected population[Zone]=
+	Total population per zone[Zone]+(Total population per zone[Zone]-Population delayed[\
+		Zone])
+	~	person
+	~		|
+
+Exponent travel time:INTERPOLATE::=
+	-1.45714
+	~	Dmnl
+	~	Result from regression analysis -0.978676
+		0.572798
+	|
+
+Factor Accessibility to jobs[Zone]=
+	ZIDZ(Accessibility to jobs[Zone],Average accessibility to jobs)
+	~	Dmnl
+	~		|
+
+Factor Fraction other land[Zone]=
+	ZIDZ(Fraction per land use category[Zone,Other],Average fraction other land)
+	~	Dmnl
+	~	Education, green areas, public spaces are considered in this factor
+		Presence of antiresidential land uses
+	|
+
+Factor Fraction road[Zone]=
+	ZIDZ(Fraction per land use category[Zone,Road],Average fraction road)
+	~	Dmnl
+	~	Traffic noise and air pollution are related to the amount of roads in a \
+		zone
+	|
+
+"Factor Over-vacancy"[Zone]=
+	ZIDZ("Over-vacancy"[Zone],"Average over-vacancy")
+	~	Dmnl
+	~	Over vacancy attracts unwanted events
+	|
+
+Factor Proximity to nature[Zone]=
+	ZIDZ(Proximity to nature[Zone],Average proximity to nature)
+	~	Dmnl
+	~		|
+
+Factor Proximity to the city[Zone]=
+	ZIDZ(Proximity to the city[Zone],Average proximity to the city)
+	~	Dmnl
+	~		|
+
+Fertility[Zone]=
+	0.5*Population adult[Zone]*Fertility rate
+	~	person
+	~	denmark demographics: 10.4/1000
+		http://www.indexmundi.com/denmark/demographics_profile.html
+	|
+
+Fertility rate= WITH LOOKUP (
+	Time,
+		([(2015,0)-(2100,100)],(2015,1.57),(2100,1.857) ))
+	~	Dmnl
+	~	https://www.thelocal.dk/20150217/danish-fertility-rate-on-the-rebound
+		in 2100: 1.857 \
+		http://worldpopulationreview.com/countries/denmark-population/total-fertili\
+		ty-rate/
+	|
+
+Forecast initial population[Zone]=
+	Initial population[Zone]*POWER((1+(One year*Population growth[Zone])), Forecast Time Forecasting Policy\
+		/One year)
+	~	person
+	~		|
+
+Forecast Time Forecasting Policy=
+	2
+	~	Year
+	~		|
+
+Forecasted households[Zone]=
+	Expected population[Zone]/Average household size
+	~	house
+	~		|
+
+Forecasting Delay Order=
+	3
+	~	Dmnl
+	~		|
+
+Fraction adult[Zone]=
+	ZIDZ ( Population adult[Zone] , Total population per zone[Zone] )
+	~	Dmnl
+	~	copenhagen demographics
+		https://ugeo.urbistat.com/AdminStat/en/dk/demografia/eta/copenhagen/2036866\
+		7/4
+	|
+
+Fraction adult unable to drive=
+	0.1
+	~	Dmnl
+	~		|
+
+Fraction business per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Fraction per land use category\
+		[Zone!,Business]
+	, 0)) / Number of zones per district type[City center] ~~|
+Fraction business per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Fraction per land use category[Zone!,Business], 0)) /Number of zones per district type\
+		[Other urban districts] ~~|
+Fraction business per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Fraction per land use category\
+		[Zone!,Business], 0)) / Number of zones per district type[Suburbs] ~~|
+Fraction business per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Fraction per land use category\
+		[Zone!,Business], 0)) / Number of zones per district type[Rural areas]
+	~	Dmnl
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Fraction carsharing population=
+	Carsharing population/Total population in GCA
+	~	Dmnl
+	~		|
+
+Fraction child[Zone]=
+	ZIDZ ( Population child[Zone] , Total population per zone[Zone] )
+	~	Dmnl
+	~	copenhagen demographics
+		https://ugeo.urbistat.com/AdminStat/en/dk/demografia/eta/copenhagen/2036866\
+		7/4
+	|
+
+Fraction commuter trips in morning peak[Zone]=
+	Initial commuter trips in morning peak[Zone]/Initial trips in morning peak[Zone]
+	~	Dmnl
+	~		|
+
+Fraction elderly[Zone]=
+	ZIDZ ( Population elderly[Zone] , Total population per zone[Zone] )
+	~	Dmnl
+	~	copenhagen demographics
+		https://ugeo.urbistat.com/AdminStat/en/dk/demografia/eta/copenhagen/2036866\
+		7/4
+	|
+
+Fraction elderly unable to drive=
+	0.5
+	~	Dmnl
+	~		|
+
+Fraction housing per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Fraction per land use category\
+		[Zone!,Housing]
+	, 0)) / Number of zones per district type[City center] ~~|
+Fraction housing per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Fraction per land use category[Zone!,Housing], 0)) /Number of zones per district type\
+		[Other urban districts] ~~|
+Fraction housing per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Fraction per land use category\
+		[Zone!,Housing], 0)) / Number of zones per district type[Suburbs] ~~|
+Fraction housing per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Fraction per land use category\
+		[Zone!,Housing], 0)) / Number of zones per district type[Rural areas]
+	~	Dmnl
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Fraction mobility for those unable to drive=
+	0.3
+	~	Dmnl/Year
+	~	test
+		Depends on the penetration rate of AV's
+		Depends on the way people who are unable to drive today will use this \
+		vehicle
+	|
+
+Fraction other land per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Fraction per land use category\
+		[Zone!,Other]
+	, 0)) / Number of zones per district type[City center] ~~|
+Fraction other land per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Fraction per land use category[Zone!,Other], 0)) /Number of zones per district type[\
+		Other urban districts] ~~|
+Fraction other land per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Fraction per land use category\
+		[Zone!,Other], 0)) / Number of zones per district type[Suburbs] ~~|
+Fraction other land per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Fraction per land use category\
+		[Zone!,Other], 0)) / Number of zones per district type[Rural areas]
+	~	Dmnl
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Fraction parking per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Fraction per land use category\
+		[Zone!,Parking]
+	, 0)) / Number of zones per district type[City center] ~~|
+Fraction parking per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Fraction per land use category[Zone!,Parking], 0)) /Number of zones per district type\
+		[Other urban districts] ~~|
+Fraction parking per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Fraction per land use category\
+		[Zone!,Parking], 0)) / Number of zones per district type[Suburbs] ~~|
+Fraction parking per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Fraction per land use category\
+		[Zone!,Parking], 0)) / Number of zones per district type[Rural areas]
+	~	Dmnl
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Fraction per land use category[Zone,Housing]=
+	Allocated land[Zone,Housing]/Total zone surface[Zone] ~~|
+Fraction per land use category[Zone,Business]=
+	Allocated land[Zone,Business]/Total zone surface[Zone] ~~|
+Fraction per land use category[Zone,Road]=
+	Allocated land[Zone,Road]/Total zone surface[Zone] ~~|
+Fraction per land use category[Zone,Parking]=
+	Allocated land[Zone,Parking]/Total zone surface[Zone] ~~|
+Fraction per land use category[Zone,Other]=
+	Allocated land[Zone,Other]/Total zone surface[Zone]
+	~	Dmnl
+	~		|
+
+Fraction population unable to drive=
+	Population unable to drive/Total population in GCA
+	~	Dmnl
+	~		|
+
+Fraction potential carsharing population=
+	Potential carsharing population/Total population in GCA
+	~	Dmnl
+	~		|
+
+Fraction road per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Fraction per land use category\
+		[Zone!,Road]
+	, 0)) / Number of zones per district type[City center] ~~|
+Fraction road per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Fraction per land use category[Zone!,Road], 0)) /Number of zones per district type[Other urban districts\
+		] ~~|
+Fraction road per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Fraction per land use category\
+		[Zone!,Road], 0)) / Number of zones per district type[Suburbs] ~~|
+Fraction road per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Fraction per land use category\
+		[Zone!,Road], 0)) / Number of zones per district type[Rural areas]
+	~	Dmnl
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Fraction teen[Zone]=
+	ZIDZ ( Population teen[Zone] , Total population per zone[Zone] )
+	~	Dmnl
+	~	copenhagen demographics
+		https://ugeo.urbistat.com/AdminStat/en/dk/demografia/eta/copenhagen/2036866\
+		7/4
+	|
+
+Fraction unallocated land[Zone]=
+	Unallocated land[Zone]/Total zone surface[Zone]
+	~	Dmnl
+	~		|
+
+Fraction unallocated land per district type[City center]=
+	Unallocated land per district type[City center]/Surface per district type[City center\
+		] ~~|
+Fraction unallocated land per district type[Other urban districts]=
+	Unallocated land per district type[Other urban districts]/Surface per district type[\
+		Other urban districts] ~~|
+Fraction unallocated land per district type[Suburbs]=
+	Unallocated land per district type[Suburbs]/Surface per district type[Suburbs] ~~|
+Fraction unallocated land per district type[Rural areas]=
+	Unallocated land per district type[Rural areas]/Surface per district type[Rural areas\
+		]
+	~	m*m/(km*km)
+	~		|
+
+GCA Modal split car and AV=
+	SUM( Modal split car and AV[Zone!] )/ELMCOUNT(Zone)
+	~	Dmnl
+	~		|
+
+Goal of optimal road use density[Zone]=
+	Initial optimal road use density[Zone] * ( Maximum efficiency without AVs + Effect of penetration rate AVs on efficiency\
+		 * ( Maximum increased efficiency by AV - Maximum efficiency without AVs ) )
+	~	car/(hour*lane)
+	~		|
+
+hours of paid parking=
+	10/24
+	~	hour
+	~	8-18 uur, Zonedata860
+	|
+
+Households[Zone]=
+	Total population per zone[Zone]/Average household size
+	~	house
+	~		|
+
+Housing demolition[Zone]=
+	IF THEN ELSE ( ZIDZ(Delayed available houses[Zone],Buildings[Zone,Housing]) > Vacancy threshold\
+		 , PULSE( Time , TIME STEP ) , 0 )
+	~	house/Year
+	~	Vacancy treshold*Delayed available houses[Zone]
+	|
+
+Housing shortage[Zone]=
+	MAX((Households[Zone]-Buildings[Zone,Housing]),0)/One year
+	~	house/Year
+	~		|
+
+Idle time car=
+	Initial idle time car-((Initial idle time car-(1-New uses for cars))*Penetration rate AV\
+		)
+	~	Dmnl
+	~	Decreasing the idle time of a car from 84% or 5.5%, so deduct the initial \
+		idle time car minus the use the car 1-new uses for cars.
+	|
+
+Incoming car commuter trips in morning peak[Zone]=
+	(Trip attraction[Zone]/Transport friction[Zone])
+	/Scaling factor commuter trips[Zone]
+	~	person
+	~	\Change in commuter trips[Zone] to scale the values
+	|
+
+Increase in cars per person=
+	Cars per person*(Fraction mobility for those unable to drive*Fraction population unable to drive\
+		)*Penetration rate AV
+	~	(car/person)/Year
+	~	For adults 5 times as small, because only the disabled receive extra \
+		abilities
+	|
+
+Increase in carsharing population=
+	Carsharing rate*Penetration rate AV*(Potential carsharing population)
+	~	person/Year
+	~		|
+
+Increase in mobility for those unable to drive=
+	Fraction mobility for those unable to drive*Penetration rate AV*Population unable to drive
+	~	person/Year
+	~		|
+
+Increase in number of lanes[Zone]=
+	DELAY N (  Allocation new road lanes[Zone] +Renovation of lanes[Zone], Construction time new road lanes\
+		, Lane expansion in construction[Zone]/One year , Construction delay order )
+	~	lane/Year
+	~	Pressure to reduce congestion[Zone]*Number of lanes stock[Zone]
+		IF THEN ELSE( Pressure to reduce congestion[Zone]>0, 1, 0)
+		If pressure to decrease congestion is bigger than 0, add a lane, else do \
+		nothing
+	|
+
+Increased parking density rate=
+	0.6
+	~	Dmnl
+	~	https://link.springer.com/content/pdf/10.1007%2F978-3-662-48847-8_11.pdf
+	|
+
+Initial adult fraction=
+	(12.7+24.14+15.59+11.43+8.3)/100
+	~	Dmnl
+	~		|
+
+Initial average trip distance car[Zone]:INTERPOLATE::=
+	GET XLS DATA( '?Tag' , 'Distance' , '1' , 'B2' )
+	~	km
+	~		|
+
+Initial buildings under construction[Zone,Housing]=
+	Initial vacancy rate GCA[Zone]*Initial places[Zone,Housing] ~~|
+Initial buildings under construction[Zone,Business]=
+	Economic growth rate*Initial places[Zone,Business]*One year
+	~	place
+	~		|
+
+Initial business surface[Zone]=
+	Initial surface per place[Zone]*Initial places[Zone,Business]
+	~	m*m
+	~		|
+
+Initial car commuter trips in morning peak[Zone]=
+	Initial trip attraction[Zone]/Initial transport friction[Zone]
+	~	person
+	~		|
+
+Initial cars per person=
+	0.37
+	~	car/person
+	~		|
+
+Initial carsharing population=
+	Total population in GCA*Initial fraction car sharing population
+	~	person
+	~		|
+
+Initial children fraction=
+	(4.13+3.4+5.46)/100
+	~	Dmnl
+	~		|
+
+Initial commuter trips in morning peak[Zone]:INTERPOLATE::=
+	GET XLS DATA( '?Tag' , 'CMPTripsIn' , '1' , 'B2' )
+	~	person
+	~		|
+
+Initial decommissioning of road lanes=
+	0
+	~	lane
+	~		|
+
+Initial elderly fraction=
+	(6.42+3.9)/100
+	~	Dmnl
+	~		|
+
+Initial fraction car sharing population=
+	0.001
+	~	Dmnl
+	~	http://www.eltis.org/sites/default/files/tool/the_state_of_carsharing_europ\
+		e.pdf
+	|
+
+Initial fraction unallocated land=
+	0.001
+	~	Dmnl
+	~	very small, to start the model runs
+	|
+
+Initial idle time car=
+	0.84
+	~	Dmnl
+	~	84% of time in peak hours
+	|
+
+Initial jobs[Zone]:=
+	GET XLS DATA( '?Tag' , 'Initjob' , '1' , 'B2' )
+	~	job
+	~		|
+
+Initial land used[Zone,Parking]=
+	Initial parking surface[Zone] ~~|
+Initial land used[Zone,Road]=
+	Initial road transport surface[Zone] ~~|
+Initial land used[Zone,Housing]=
+	Initial residential surface[Zone] ~~|
+Initial land used[Zone,Business]=
+	Initial business surface[Zone] ~~|
+Initial land used[Zone,Other]=
+	Initial other land[Zone]
+	~	m*m
+	~		|
+
+Initial lane expansion in preparation[Zone]=
+	Car traffic management*(ZIDZ(Initial road transport surface[Zone],Road length[Zone])\
+		/Lane width[Zone])
+	~	lane
+	~		|
+
+Initial level of service=
+	0.7
+	~	Dmnl
+	~		|
+
+Initial number of lanes[Zone]=
+	((Initial trips in morning peak[Zone]/Duration of morning peak/Persons per car in morning peak\
+		 * Number of zones to cross
+	[Zone])/Initial road capacity[Zone])/Initial level of service
+	~	lane
+	~	GET XLS DATA( '?Tag' , 'Lanes' , '1' , 'B2' )
+		Initial road traffic is equal to current road capacity
+		ZIDZ((((Initial car commuter trips in morning peak[Zone]/Duration of \
+		morning peak)/Fraction commuter trips in morning peak[Zone]) * Number of \
+		zones to cross[Zone]) , Initial road capacity[Zone])
+	|
+
+Initial optimal road use density[Zone]=
+	Initial road capacity[Zone]
+	~	car/lane/hour
+	~		|
+
+Initial other land[Zone]=
+	Total zone surface[Zone]-Initial road transport surface[Zone]-Initial residential surface\
+		[Zone]-Initial parking surface[Zone]-Initial business surface[Zone]
+	~	m*m
+	~		|
+
+Initial parking places[Zone]:=
+	GET XLS DATA( '?Tag' , 'Parkplaces' , '1' , 'B2' )
+	~	car
+	~		|
+
+Initial parking places including rural areas[Zone]=
+	IF THEN ELSE(Initial parking places[Zone]=0, Number of cars[Zone], Initial parking places\
+		[Zone])
+	~	car
+	~		|
+
+Initial parking places under construction[Zone]=
+	0
+	~	car
+	~		|
+
+Initial parking surface[Zone]=
+	Initial parking places including rural areas[Zone]*Initial parking surface per car
+	~	m*m
+	~		|
+
+Initial parking surface per car=
+	25
+	~	(m*m)/car
+	~	https://en.wikipedia.org/wiki/Parking_lot'hashtag'Sweden_and_Denmark
+	|
+
+Initial persons per car in morning peak=
+	1
+	~	person/car
+	~		|
+
+Initial places[Zone,Housing]=
+	Initial population[Zone]/Average household size*(1+Initial vacancy rate city) ~~|
+Initial places[Zone,Business]=
+	Initial jobs[Zone]
+	~	house
+	~		|
+
+Initial population[Zone]:INTERPOLATE::=
+	GET XLS DATA( '?Tag' , 'Initpop' , '1' , 'B2' )
+	~	person [8.40779e-045,?]
+	~		|
+
+Initial population able to drive=
+	SUM(Initial population adult[Zone!])*(1-Fraction adult unable to drive)+
+	SUM(Initial population elderly[Zone!])*(1-Fraction elderly unable to drive)
+	~	person
+	~		|
+
+Initial population adult[Zone]=
+	Initial population[Zone]*Initial adult fraction
+	~	person
+	~		|
+
+Initial population child[Zone]=
+	Initial population[Zone]*Initial children fraction
+	~	person
+	~		|
+
+Initial population elderly[Zone]=
+	Initial population[Zone]*Initial elderly fraction
+	~	person
+	~		|
+
+Initial population teen[Zone]=
+	Initial population[Zone]*Initial teen fraction
+	~	person
+	~		|
+
+Initial population unable to drive=
+	SUM(Initial population adult[Zone!])*Fraction adult unable to drive
+	+SUM(Initial population teen[Zone!])
+	+SUM(Initial population elderly[Zone!])*Fraction elderly unable to drive
+	~	person
+	~		|
+
+Initial residential surface[Zone]=
+	Initial surface per place[Zone]*Initial places[Zone,Housing]
+	~	m*m
+	~		|
+
+Initial road capacity[Zone]:INTERPOLATE::=
+	GET XLS DATA( '?Tag' , 'Capacity' , '1' , 'B2' )
+	~	car/lane/hour
+	~		|
+
+Initial road transport surface[Zone]=
+	Road length[Zone]*Average road width[Zone]
+	~	m*m
+	~		|
+
+Initial surface per place[Zone]= WITH LOOKUP (
+	District of zone[Zone],
+		([(0,0)-(11,200)],(1,33.16),(2,26.21),(3,189.31),(4,23.61),(5,12.31),(6,33.47),(7,52.01\
+		),(8,125.66),(9,23.9),(10,52.88
+		),(11,18.91) ))
+	~	(m*m)/place
+	~		|
+
+Initial teen fraction=
+	4.52/100
+	~	Dmnl
+	~		|
+
+Initial time looking for a parking spot[Zone]:INTERPOLATE::=
+	GET XLS DATA( '?Tag' , 'Parksearchtime' , '1' , 'B2' )
+	~	minute
+	~		|
+
+Initial transport friction[Zone]=
+	Initial travel time[Zone]^Exponent travel time
+	~	Dmnl
+	~		|
+
+Initial travel time[Zone]:INTERPOLATE::=
+	GET XLS DATA( '?Tag' , 'Time' , '1' , 'B2' )
+	~	hour
+	~		|
+
+Initial trip attraction[Zone]=
+	Constant trip generation*(Initial population able to drive*Initial jobs[Zone])
+	~	person
+	~		|
+
+Initial trips in morning peak[Zone]:=
+	GET XLS DATA( '?Tag' , 'MPTripsIn' , '1' , 'B2' )
+	~	person
+	~		|
+
+Initial unallocated land[Zone]=
+	Initial fraction unallocated land*Total zone surface[Zone]
+	~	m*m
+	~		|
+
+Initial vacancy rate city=
+	0.039
+	~	Dmnl
+	~	3.9% vacancy, source: \
+		http://www.handelskammer.se/sites/default/files/Market%20Presentation_Real%\
+		20Estate%20Investors%20Summit_NEWSEC.pdf
+	|
+
+Initial vacancy rate GCA[Zone]=
+	IF THEN ELSE(District of zone[Zone] = 3 :OR: District of zone[Zone] = 7 :OR: District of zone\
+		[Zone] = 8 :OR: District of zone[Zone] = 10, Initial vacancy rate suburbs and rural areas\
+		, Initial vacancy rate city)
+	~	Dmnl
+	~		|
+
+Initial vacancy rate suburbs and rural areas=
+	0.1
+	~	Dmnl
+	~	Assumption: there is always place in suburbs or rural areas
+	|
+
+integer type=
+	0
+	~	Dmnl
+	~	Set to 10 for integer allocations; otherwise 0.
+	|
+
+Jobs density per district type[City center]=
+	Jobs per district type[City center]/Surface per district type[City center] ~~|
+Jobs density per district type[Other urban districts]=
+	Jobs per district type[Other urban districts]/Surface per district type[Other urban districts\
+		] ~~|
+Jobs density per district type[Suburbs]=
+	Jobs per district type[Suburbs]/Surface per district type[Suburbs] ~~|
+Jobs density per district type[Rural areas]=
+	Jobs per district type[Rural areas]/Surface per district type[Rural areas]
+	~	place/(km*km)
+	~		|
+
+Jobs per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Buildings\
+		[Zone!, Business], 0)) ~~|
+Jobs per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Buildings[Zone!, Business], 0)) ~~|
+Jobs per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Buildings\
+		[Zone!, Business], 0)) ~~|
+Jobs per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Buildings\
+		[Zone!, Business], 0))
+	~	place
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+km to m ratio=
+	1000
+	~	m/km
+	~		|
+
+Land type:
+	Business, Housing, Parking, Road, Other
+	~	
+	~		|
+
+Lane expansion in construction[Zone]= INTEG (
+	Allocation new road lanes[Zone]-Increase in number of lanes[Zone]+Renovation of lanes\
+		[Zone],
+		Initial lane expansion in preparation[Zone])
+	~	lane
+	~		|
+
+Lane width[Zone]=
+	Average road width[Zone]/Initial number of lanes[Zone]
+	~	m/lane
+	~	Lane width = 10-11 feet in urban areas = max 3.35 m
+		Source: \
+		https://nacto.org/publication/urban-street-design-guide/street-design-eleme\
+		nts/lane-width/
+	|
+
+Lanes available including under construction[Zone]=
+	Lane expansion in construction[Zone] + Number of lanes[Zone]
+	~	lane
+	~		|
+
+Leaving population[Zone]=
+	Moving childs[Zone]+Moving teens[Zone]+Moving adults[Zone]+Moving elderly[Zone]
+	~	person/Year
+	~		|
+
+Life expectancy at age 64= WITH LOOKUP (
+	Time,
+		([(2015,0)-(2100,100)],(2015,19.35),(2100,27.6) ))
+	~	Year
+	~	average age =  91.6 in 2100
+		https://www.ssb.no/en/befolkning/artikler-og-publikasjoner/_attachment/270675?_ts=155\
+		71cbb700
+		https://data.oecd.org/healthstat/life-expectancy-at-65.htm 18 for men, \
+		20.7 for women = 19.35 on average
+	|
+
+m2 to km2 ratio=
+	1/1e+006
+	~	(km*km)/(m*m)
+	~		|
+
+Maximum efficiency without AVs=
+	1
+	~	Dmnl
+	~	Assuming 100% efficiency per region
+	|
+
+Maximum increased efficiency by AV=
+	1.4
+	~	Dmnl
+	~	180% in urban areas \
+		https://link.springer.com/content/pdf/10.1007%2F978-3-662-48847-8_11.pdf
+		http://orfe.princeton.edu/ \
+		alaink/Theses/2013/Brownell%2c%2520Chris%2520Final%2520Thesis.pdf
+		So at 100% penetration rate it's 180%
+	|
+
+Migrating population[Zone]=
+	Migration child[Zone]+Migration teen[Zone]+Migration adult[Zone]+Migration elderly[Zone\
+		]
+	~	person/Year
+	~		|
+
+Migration adult[Zone]=
+	Entering adults[Zone]-Moving adults[Zone]
+	~	person/Year
+	~		|
+
+Migration child[Zone]=
+	Entering children[Zone]-Moving childs[Zone]
+	~	person/Year
+	~	ALLOCATE BY PRIORITY(Available places child[Zone], Relative attractiveness \
+		per zone[Zone], ELMCOUNT(Zone), 1/860, Moving childs)
+	|
+
+Migration elderly[Zone]=
+	Entering old people[Zone]-Moving elderly[Zone]
+	~	person/Year
+	~	ALLOCATE AVAILABLE( Migrating elderly[Zone], Relative attractiveness per zone[Zone], \
+		Available places elderly[Zone])
+		
+		or
+		
+		ALLOCATE AVAILABLE( Available places elderly[Zone], Relative \
+		attractiveness per zone[Zone], Migrating elderly[Zone])
+	|
+
+Migration rate=
+	0.0021
+	~	Dmnl/Year
+	~	population growth due to migration in 2018
+	|
+
+Migration teen[Zone]=
+	Entering teens[Zone]-Moving teens[Zone]
+	~	person/Year
+	~	ALLOCATE BY PRIORITY(Available places teen[Zone], Attractiveness to live \
+		in zone[Zone], ELMCOUNT(Zone), 1/860, Moving teens)
+	|
+
+minutes per hour=
+	60
+	~	minute/hour
+	~		|
+
+Modal split car and AV[Zone]=
+	Modal split private vehicle[Zone]+Modal split shared vehicle[Zone]
+	~	Dmnl
+	~	EXP(Utility private car[Zone])
+		/(EXP(Utility private car[Zone])
+		+EXP(Utility private AV[Zone])
+		+EXP(Utility active modes[Zone])
+		+EXP(Utility PT[Zone])
+		+EXP(Utility shared car[Zone])
+		+EXP(Utility shared AV[Zone]))
+		
+		(EXP(Utility private car[Zone])
+		+EXP(Utility private AV[Zone])
+		+EXP(Utility shared car[Zone])
+		+EXP(Utility shared AV[Zone])
+		-EXP(Constant active modes*Attention for active modes)
+		-EXP(Constant PT*Attention for PT))
+		*(Increase in cars per person/Decrease in cars per person)
+	|
+
+Modal split private vehicle[Zone]=
+	(EXP(Utility private car[Zone])+EXP(Utility private AV[Zone]))
+	/(EXP(Utility private car[Zone])
+	+EXP(Utility private AV[Zone])
+	+EXP(Utility shared car[Zone])
+	+EXP(Utility shared AV[Zone])
+	+EXP(Constant active modes*Attention for active modes)
+	+EXP(Constant PT*Attention for PT))
+	~	Dmnl
+	~		|
+
+Modal split shared vehicle[Zone]=
+	(+EXP(Utility shared car[Zone])+EXP(Utility shared AV[Zone]))
+	/(EXP(Utility private car[Zone])
+	+EXP(Utility private AV[Zone])
+	+EXP(Utility shared car[Zone])
+	+EXP(Utility shared AV[Zone])
+	+EXP(Constant active modes*Attention for active modes)
+	+EXP(Constant PT*Attention for PT))
+	~	Dmnl
+	~		|
+
+Moving adults[Zone]=
+	Population adult[Zone]/Average time in house
+	~	person/Year
+	~		|
+
+Moving childs[Zone]=
+	Population child[Zone]/Average time in house
+	~	person/Year
+	~		|
+
+Moving elderly[Zone]=
+	Population elderly[Zone]/Average time in house
+	~	person/Year
+	~		|
+
+moving priority vector[Zone,ptype]=
+	moving priority vector ptype+integer type ~~|
+moving priority vector[Zone,ppriority]=
+	Attractiveness to live in zone[Zone] ~~|
+moving priority vector[Zone,pwidth]=
+	moving priority vector pwidth ~~|
+moving priority vector[Zone,pextra]=
+	moving priority vector pextra
+	~	Dmnl
+	~		|
+
+moving priority vector pextra=
+	1
+	~	Dmnl
+	~		|
+
+Moving teens[Zone]=
+	Population teen[Zone]/Average time in house
+	~	person/Year
+	~		|
+
+New demand for land type[Zone,Business]=
+	Demand for new business surface[Zone] ~~|
+New demand for land type[Zone,Housing]=
+	Demand for new residential surface[Zone] ~~|
+New demand for land type[Zone,Parking]=
+	Demand for new parking surface[Zone] ~~|
+New demand for land type[Zone,Road]=
+	Demand for new road surface[Zone]/50 ~~|
+New demand for land type[Zone,Other]=
+	MAX(Unallocated land[Zone],0)/One year
+	~	(m*m)/Year
+	~	To preserve the original other land use
+	|
+
+New uses for cars=
+	0.945
+	~	Dmnl
+	~	test
+		Depends on the penetration rate of AV's
+		Depends on the way people will use this vehicle for additional trip \
+		purposes as driverless delivery, errands, etc.
+	|
+
+Number of cars[Zone]=
+	Cars per person*(Total population per zone[Zone])
+	~	car
+	~		|
+
+Number of lanes[Zone]= INTEG (
+	Increase in number of lanes[Zone]-Renovation of lanes[Zone]-Decrease in number of lanes\
+		[Zone],
+		Initial number of lanes[Zone])
+	~	lane
+	~		|
+
+Number of lanes needed to facilitate traffic[Zone]=
+	Initial number of lanes[Zone] * Actual road capacity use compared to initial optimum\
+		[Zone]
+	~	lane
+	~		|
+
+Number of zones per district[Amager]=
+	89 ~~|
+Number of zones per district[Christianshavn]=
+	12 ~~|
+Number of zones per district[Eastern Zealand]=
+	68 ~~|
+Number of zones per district[Frederiksberg]=
+	44 ~~|
+Number of zones per district[Indre By]=
+	36 ~~|
+Number of zones per district[Norrebro]=
+	30 ~~|
+Number of zones per district[Northern Suburbs]=
+	222 ~~|
+Number of zones per district[Northern Zealand]=
+	115 ~~|
+Number of zones per district[Osterbro]=
+	50 ~~|
+Number of zones per district[Vestegnen]=
+	144 ~~|
+Number of zones per district[Vesterbro]=
+	50
+	~	Dmnl
+	~		|
+
+Number of zones per district type[City center]=
+	Number of zones per district[Christianshavn] + Number of zones per district[Indre By\
+		] ~~|
+Number of zones per district type[Other urban districts]=
+	Number of zones per district[Amager] + Number of zones per district[Frederiksberg] +\
+		 Number of zones per district[Norrebro] + Number of zones per district[Osterbro] + \
+		Number of zones per district[Vesterbro] ~~|
+Number of zones per district type[Suburbs]=
+	Number of zones per district[Northern Suburbs] + Number of zones per district[Vestegnen\
+		] ~~|
+Number of zones per district type[Rural areas]=
+	Number of zones per district[Eastern Zealand] + Number of zones per district[Northern Zealand\
+		]
+	~	Dmnl
+	~		|
+
+Number of zones to cross[Zone]=
+	XIDZ(Initial average trip distance car[Zone] , Average zone length[Zone],1)
+	~	Dmnl
+	~		|
+
+One lane=
+	1
+	~	lane
+	~		|
+
+One year=
+	1
+	~	Year
+	~		|
+
+Operating costs per km car=
+	0.339
+	~	euro/km
+	~	Transport transitions in Copenhagen: Comparing the cost of cars and \
+		bicycles (Gossling & Choi, 2015)
+	|
+
+Optimal road use density[Zone]= INTEG (
+	Change in road use density[Zone],
+		Initial optimal road use density[Zone])
+	~	car/(hour*lane)
+	~		|
+
+"Over-vacancy"[Zone]=
+	MAX(Vacancy rate[Zone]-Initial vacancy rate city,0)
+	~	Dmnl
+	~		|
+
+Parking available including under construction[Zone]=
+	Parking places under construction[Zone] + Parking places[Zone]
+	~	car
+	~		|
+
+Parking decay=
+	50
+	~	Year
+	~		|
+
+Parking demand[Zone]=
+	(Number of cars[Zone]*Idle time car)
+	~	car
+	~		|
+
+Parking demand per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Parking demand\
+		[Zone!], 0)) ~~|
+Parking demand per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Parking demand[Zone!], 0)) ~~|
+Parking demand per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Parking demand\
+		[Zone!], 0)) ~~|
+Parking demand per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Parking demand\
+		[Zone!], 0))
+	~	car
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Parking places[Zone]= INTEG (
+	Construction and procurement parking places[Zone]-Renovation of parking[Zone]-Demolition parking places\
+		[Zone],
+		Initial parking places including rural areas[Zone])
+	~	car
+	~		|
+
+Parking places being demolished[Zone]= INTEG (
+	Demolition parking places[Zone]-Actual decommissioning of parking surface[Zone],
+		0)
+	~	car
+	~		|
+
+Parking places per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Parking places\
+		[Zone!], 0)) ~~|
+Parking places per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Parking places[Zone!], 0)) ~~|
+Parking places per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Parking places\
+		[Zone!], 0)) ~~|
+Parking places per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Parking places\
+		[Zone!], 0))
+	~	car
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Parking places under construction[Zone]= INTEG (
+	Allocation parking surface[Zone]+Renovation of parking[Zone]-Construction and procurement parking places\
+		[Zone],
+		Initial parking places under construction[Zone])
+	~	car
+	~		|
+
+Parking price[Zone]:INTERPOLATE::=
+	GET XLS DATA( '?Tag' , 'Parkprice' , '1' , 'B2' )
+	~	DKK/hour
+	~	Dkk/hour
+	|
+
+Parking price multiplier=
+	1
+	~	Dmnl
+	~		|
+
+Parking surface[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Allocated land\
+		[Zone!, Parking], 0)) ~~|
+Parking surface[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Allocated land[Zone!, Parking], 0)) ~~|
+Parking surface[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Allocated land\
+		[Zone!, Parking], 0)) ~~|
+Parking surface[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Allocated land\
+		[Zone!, Parking], 0))
+	~	m*m
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Parking surface per car=
+	(Initial parking surface per car*(1-Penetration rate AV))+(Increased parking density rate\
+		*Initial parking surface per car
+	*Penetration rate AV)
+	~	(m*m)/car
+	~		|
+
+Penetration rate AV=
+	IF THEN ELSE(Switch Penetration rate AV=0, "2030, fast adoption", 
+	IF THEN ELSE(Switch Penetration rate AV=1, "2030, slow adoption",
+	IF THEN ELSE(Switch Penetration rate AV=2, "2035, fast adoption",
+	IF THEN ELSE(Switch Penetration rate AV=3, "2035, slow adoption",
+	0))))
+	~	Dmnl
+	~		|
+
+Persons per car in morning peak=
+	Initial persons per car in morning peak+(Initial persons per car in morning peak*Change in cars per person\
+		*Fraction carsharing population)
+	~	person/car
+	~		|
+
+Policy allocation priority[Housing]=
+	0.589 ~~|
+Policy allocation priority[Business]=
+	0.896 ~~|
+Policy allocation priority[Road]=
+	0.2 ~~|
+Policy allocation priority[Parking]=
+	0.1 ~~|
+Policy allocation priority[Other]=
+	1
+	~	Dmnl
+	~		|
+
+Population able to drive= INTEG (
+	Increase in mobility for those unable to drive,
+		Initial population able to drive)
+	~	person
+	~		|
+
+Population adult[Zone]= INTEG (
+	Aging teens[Zone]+Migration adult[Zone]-Aging adults[Zone]-Deaths adult[Zone],
+		Initial population adult[Zone])
+	~	person
+	~	18-64
+	|
+
+Population child[Zone]= INTEG (
+	Births[Zone]+Migration child[Zone]-Aging childs[Zone]-Deaths child[Zone],
+		Initial population child[Zone])
+	~	person
+	~	0-11
+	|
+
+Population delayed[Zone]= 
+	DELAY N( Total population per zone[Zone], Forecast Time Forecasting Policy , Delayed initial population\
+		[Zone], Forecasting Delay Order )
+	~	person
+	~		|
+
+Population density[Zone]=
+	Total population per zone[Zone]/Total zone surface[Zone]/m2 to km2 ratio
+	~	person/(km*km)
+	~		|
+
+Population density per district type[City center]=
+	Population per district type[City center]/Surface per district type[City center] ~~|
+Population density per district type[Other urban districts]=
+	Population per district type[Other urban districts]/Surface per district type[Other urban districts\
+		] ~~|
+Population density per district type[Suburbs]=
+	Population per district type[Suburbs]/Surface per district type[Suburbs] ~~|
+Population density per district type[Rural areas]=
+	Population per district type[Rural areas]/Surface per district type[Rural areas]
+	~	person/(km*km)
+	~		|
+
+Population elderly[Zone]= INTEG (
+	Aging adults[Zone]+Migration elderly[Zone]-Deaths[Zone],
+		Initial population elderly[Zone])
+	~	person
+	~	65-
+	|
+
+Population growth[Zone]=
+	ZIDZ((Births[Zone]-Deaths[Zone]),Total population per zone[Zone])+Migration rate
+	~	1/Year
+	~		|
+
+Population growth rate[Zone]=
+	ZIDZ(Total population per zone[Zone],Delayed population per zone[Zone])-1
+	~	
+	~		|
+
+Population municipality of Copenhagen=
+	Population per district type[City center]+Population per district type[Other urban districts\
+		]
+	~	person
+	~		|
+
+Population per district[Amager]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1, Total population per zone[Zone!], 0)) ~~|
+Population per district[Christianshavn]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2, Total population per zone[Zone!], 0)) ~~|
+Population per district[Eastern Zealand]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3, Total population per zone[Zone!], 0)) ~~|
+Population per district[Frederiksberg]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 4, Total population per zone[Zone!], 0)) ~~|
+Population per district[Indre By]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 5, Total population per zone[Zone!], 0)) ~~|
+Population per district[Norrebro]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 6, Total population per zone[Zone!], 0)) ~~|
+Population per district[Northern Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7, Total population per zone[Zone!], 0)) ~~|
+Population per district[Northern Zealand]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 8, Total population per zone[Zone!], 0)) ~~|
+Population per district[Osterbro]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 9, Total population per zone[Zone!], 0)) ~~|
+Population per district[Vestegnen]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 10, Total population per zone[Zone!], 0))\
+		 ~~|
+Population per district[Vesterbro]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 11, Total population per zone[Zone!], 0))
+	~	person
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Population per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Total population per zone\
+		[Zone!], 0)) ~~|
+Population per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Total population per zone[Zone!], 0)) ~~|
+Population per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Total population per zone\
+		[Zone!], 0)) ~~|
+Population per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Total population per zone\
+		[Zone!], 0))
+	~	person
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Population teen[Zone]= INTEG (
+	Aging childs[Zone]+Migration teen[Zone]-Aging teens[Zone]-Deaths teen[Zone],
+		Initial population teen[Zone])
+	~	person
+	~	12-17
+	|
+
+Population unable to drive= INTEG (
+	-Increase in mobility for those unable to drive,
+		Initial population unable to drive)
+	~	person
+	~		|
+
+Potential carsharing population= INTEG (
+	-Increase in carsharing population,
+		Total population in GCA)
+	~	person
+	~		|
+
+pprofile:
+	ptype, ppriority, pwidth, pextra
+	~	
+	~		|
+
+Priority vector[Zone,Land type,ptype]=
+	Allocation priority type+Allocation integer type ~~|
+Priority vector[Zone,Land type,ppriority]=
+	Allocation priority[Zone,Land type] ~~|
+Priority vector[Zone,Land type,pwidth]=
+	Allocation priority width ~~|
+Priority vector[Zone,Land type,pextra]=
+	Allocation extra
+	~	Dmnl
+	~		|
+
+Proximity to nature[Zone]= WITH LOOKUP (
+	District of zone[Zone],
+		([(0,-30)-(11,30)],(1,-22.9),(2,-28.1),(3,15.6),(4,-22.9),(5,-28.1),(6,-22.9),(7,-2.6\
+		),(8,15.6),(9,-22.9),(10,-2.6),(11,-22.9) ))
+	~	Dmnl
+	~	1=amager
+		2=christianshavn
+		3=eastern zealand
+		4=frederiksberg
+		5=indre by
+		6=norrebro
+		7=northern suburbs
+		8=northern zealand
+		9=osterbro
+		10=vestegnen
+		11=vesterbro
+		
+		IF THEN ELSE(District of zone[Zone]=2 OR District of zone[Zone]=5, -28.1,
+		IF THEN ELSE(District of zone[Zone]=1 OR District of zone[Zone]=4 OR District of \
+		zone[Zone]=6 OR District of zone[Zone]=9 OR District of zone[Zone]=11, \
+		-22.9,
+		IF THEN ELSE(District of zone[Zone]=7 OR District of zone[Zone]=10, -2.6,
+		 15.6) 
+		
+		{onfalse} )
+	|
+
+Proximity to the city[Zone]= WITH LOOKUP (
+	District of zone[Zone],
+		([(0,-30)-(11,70)],(1,42.5),(2,60.4),(3,-33.4),(4,42.5),(5,60.4),(6,42.5),(7,12.9),\
+		(8,-33.4),(9,42.5),(10,12.9),(11,42.5) ))
+	~	Dmnl
+	~	1=amager
+		2=christianshavn
+		3=eastern zealand
+		4=frederiksberg
+		5=indre by
+		6=norrebro
+		7=northern suburbs
+		8=northern zealand
+		9=osterbro
+		10=vestegnen
+		11=vesterbro
+	|
+
+Reallocation[Zone,Parking]=
+	Reallocation of parking surface[Zone] ~~|
+Reallocation[Zone,Road]=
+	Reallocation of road surface[Zone] ~~|
+Reallocation[Zone,Housing]=
+	Built up reallocation[Zone,Housing] ~~|
+Reallocation[Zone,Business]=
+	Built up reallocation[Zone,Business] ~~|
+Reallocation[Zone,Other]=
+	0
+	~	(m*m)/Year
+	~		|
+
+Reallocation of building surface[Zone,Housing]= DELAY FIXED (
+	 Demolition buildings[Zone,Housing] , Demolishment delay buildings , 0) ~~|
+Reallocation of building surface[Zone,Business]=
+	DELAY FIXED( Demolition buildings[Zone,Business] , Demolishment delay buildings , 0)
+	~	place/Year
+	~		|
+
+Reallocation of parking surface[Zone]=
+	Actual decommissioning of parking surface[Zone]*Parking surface per car
+	~	(m*m)/Year
+	~	MAX(Allocated land[Zone,Parking]-(Parking demand[Zone]*Parking surface per \
+		car), 0)/Parking decay
+	|
+
+Reallocation of road surface[Zone]=
+	Actual decommissioning of road lanes[Zone]*Lane width[Zone]*Road length[Zone]
+	~	(m*m)/Year
+	~		|
+
+Renovation of buildings[Zone,Housing]=
+	(Buildings[Zone,Housing]*Building possibility switch[Zone])/Construction aging ~~|
+Renovation of buildings[Zone,Business]=
+	(Buildings[Zone,Business]*Building possibility switch[Zone]/Construction aging)
+	~	place/Year
+	~		|
+
+Renovation of lanes[Zone]=
+	Number of lanes[Zone]*Car traffic management/One year
+	~	lane/Year
+	~	Number of lanes[Zone]/Road decay
+		+ Number of lanes[Zone]*Car traffic management/One year
+	|
+
+Renovation of parking[Zone]=
+	Parking places[Zone]/Parking decay
+	~	car/Year
+	~		|
+
+Road lane decommissioning delay=
+	0.5
+	~	Year
+	~		|
+
+Road length[Zone]:INTERPOLATE::=
+	GET XLS DATA( '?Tag' , 'Road length' , '1' , 'B2' )
+	~	m
+	~	Initial road transport surface[Zone]/(Lane width*Number of lanes needed to \
+		facilitate road capacity[Zone])
+	|
+
+Road surface[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Allocated land\
+		[Zone!, Road], 0)) ~~|
+Road surface[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Allocated land[Zone!, Road], 0)) ~~|
+Road surface[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Allocated land\
+		[Zone!, Road], 0)) ~~|
+Road surface[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Allocated land\
+		[Zone!, Road], 0))
+	~	m*m
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Scaling factor commuter trips[Zone]=
+	IF THEN ELSE( ZIDZ(Initial car commuter trips in morning peak[Zone],Initial commuter trips in morning peak\
+		[Zone])=0, 1, Initial car commuter trips in morning peak[Zone]/Initial commuter trips in morning peak\
+		[Zone])
+	~	Dmnl
+	~	XIDZ(Initial car commuter trips in morning peak[Zone],Data initial \
+		commuter trips in morning peak[Zone],1) Doesn't work, because initial car \
+		commuter trips in morning peak can be 0 too
+	|
+
+SOM migration adults=
+	SUM(Migration adult[Zone!])
+	~	person/Year
+	~		|
+
+SOM migration children=
+	SUM(Migration child[Zone!])
+	~	person/Year
+	~		|
+
+SOM migration elderly=
+	SUM(Migration elderly[Zone!])
+	~	person/Year
+	~		|
+
+SOM migration teens=
+	SUM(Migration teen[Zone!])
+	~	person/Year
+	~		|
+
+SUM available places=
+	SUM(Available places[Zone!])
+	~	person/Year
+	~		|
+
+SUM migration=
+	SOM migration children+SOM migration teens+SOM migration adults+SOM migration elderly
+	~	person/Year
+	~		|
+
+Sum road length=
+	SUM(Road length[Zone!])
+	~	m
+	~		|
+
+Surface per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Total zone surface\
+		[Zone!]*m2 to km2 ratio, 0)) ~~|
+Surface per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Total zone surface[Zone!]*m2 to km2 ratio, 0)) ~~|
+Surface per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Total zone surface\
+		[Zone!]*m2 to km2 ratio, 0)) ~~|
+Surface per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Total zone surface\
+		[Zone!]*m2 to km2 ratio, 0))
+	~	km*km
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Switch Penetration rate AV=
+	0
+	~	Dmnl
+	~	0 = Introduction 2030, fast adoption
+		1 = Introduction 2030, slow adoption
+		2 = Introduction 2040, fast adoption
+		3 = Introduction 2040, slow adoption
+		4 = No AVs at all
+	|
+
+Threshold value for lane decommissioning=
+	1.2
+	~	lane
+	~	If more than a lane is not needed anymore (1.2 lanes) then remove 1 lane
+	|
+
+Threshold value for new lane construction=
+	0.1
+	~	lane
+	~		|
+
+Threshold value for parking decommissioning=
+	0.1
+	~	Dmnl
+	~	10% too much parking spaces is maximum
+	|
+
+Time in adult=
+	47
+	~	Year
+	~		|
+
+Time looking for a parking spot[Zone]=
+	(Initial time looking for a parking spot[Zone]/minutes per hour)-(Initial time looking for a parking spot\
+		[Zone]/minutes per hour*Empty vehicle trips to avoid parking*Penetration rate AV)
+	~	hour
+	~		|
+
+Total attractiveness to live in city=
+	SUM(Attractiveness to live in zone[Zone!])
+	~	Dmnl
+	~		|
+
+Total city surface=
+	SUM( Total zone surface[Zone!] )
+	~	m*m
+	~		|
+
+Total commuter trips in morning peak[Zone]=
+	ZIDZ(Incoming car commuter trips in morning peak[Zone],(Modal split car and AV[Zone]\
+		+Modal split car and AV[Zone]))
+	~	person
+	~	test
+	|
+
+Total initial city houses=
+	SUM( Initial population[Zone!] )/Average household size*(1+Initial vacancy rate city\
+		)
+	~	house
+	~		|
+
+Total initial city jobs=
+	SUM(Initial jobs[Zone!])
+	~	job
+	~		|
+
+Total jobs in city=
+	SUM(Buildings[Zone!,Business])
+	~	place
+	~		|
+
+Total jobs in GCA=
+	SUM(Buildings[Zone!,Business])
+	~	place
+	~		|
+
+Total moving adults=
+	SUM(Moving adults[Zone!])
+	~	person/Year
+	~		|
+
+Total moving childs=
+	SUM(Moving childs[Zone!])
+	~	person/Year
+	~		|
+
+Total moving elderly=
+	SUM(Moving elderly[Zone!])
+	~	person/Year
+	~		|
+
+Total moving teens=
+	SUM(Moving teens[Zone!])
+	~	person/Year
+	~		|
+
+Total population growth rate=
+	ZIDZ(Total population in GCA,Delayed population in GCA)-1
+	~	
+	~		|
+
+Total population in GCA=
+	SUM(Total population per zone[Zone!])
+	~	person
+	~		|
+
+Total population per zone[Zone]=
+	Population child[Zone]+Population teen[Zone]+Population adult[Zone]+Population elderly\
+		[Zone]
+	~	person
+	~		|
+
+Total traffic volume in morning peak[Zone]=
+	Car traffic volume in morning peak[Zone]+AV traffic volume in morning peak[Zone]
+	~	car/hour
+	~		|
+
+Total traffic volume in morning peak per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Total traffic volume in morning peak\
+		[Zone!], 0)) ~~|
+Total traffic volume in morning peak per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Total traffic volume in morning peak[Zone!], 0)) ~~|
+Total traffic volume in morning peak per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Total traffic volume in morning peak\
+		[Zone!], 0)) ~~|
+Total traffic volume in morning peak per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Total traffic volume in morning peak\
+		[Zone!], 0))
+	~	car/hour
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Total zone surface[Zone]:INTERPOLATE::=
+	GET XLS DATA( '?Tag' , 'Size' , '1' , 'B2' )
+	~	m*m
+	~		|
+
+Total zone surface1[Zone]=
+	Allocated land[Zone,Business]+
+	Allocated land[Zone,Housing]+
+	Allocated land[Zone,Road]+
+	Allocated land[Zone,Parking]+
+	Allocated land[Zone,Other]+
+	Unallocated land[Zone]
+	~	m*m
+	~		|
+
+Traffic speed[Zone]=
+	Designed speed[Zone]*Effect of actual vehicle density on level of service[Zone]
+	~	km/hour
+	~	XIDZ(Designed speed[Zone],Effect of actual vehicle density on road use \
+		efficiency[Zone],Actual speed[Zone])
+	|
+
+Transport friction[Zone]=
+	Delayed acceptable travel time[Zone]^Exponent travel time
+	~	Dmnl
+	~		|
+
+Travel time[Zone]=
+	XIDZ(Initial travel time[Zone],Effect of actual vehicle density on level of service[\
+		Zone],Initial travel time[Zone])
+	~	hour
+	~		|
+
+Trip attraction[Zone]=
+	Constant trip generation*(Population able to drive*Buildings[Zone,Business])
+	~	person
+	~		|
+
+Unallocated land[Zone]= INTEG (
+	(Reallocation[Zone,Parking]+Reallocation[Zone,Road]+Reallocation[Zone,Housing]+Reallocation\
+		[Zone,Business]+Reallocation[Zone,Other])-(Allocation[Zone,Parking]+Allocation[Zone\
+		,Road]+Allocation[Zone,Housing]+Allocation[Zone,Business]+Allocation[Zone,Other]),
+		Initial unallocated land[Zone])
+	~	m*m
+	~		|
+
+Unallocated land per district type[City center]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 2 :OR: District of zone[Zone!] = 5, Unallocated land\
+		[Zone!], 0)) ~~|
+Unallocated land per district type[Other urban districts]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 1 :OR: 
+	District of zone[Zone!] = 4 :OR: 
+	District of zone[Zone!] = 6 :OR: 
+	District of zone[Zone!] = 9 :OR: 
+	District of zone[Zone!] = 11, 
+	Unallocated land[Zone!], 0)) ~~|
+Unallocated land per district type[Suburbs]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 7 :OR:  District of zone[Zone!] = 10, Unallocated land\
+		[Zone!], 0)) ~~|
+Unallocated land per district type[Rural areas]=
+	SUM(IF THEN ELSE(District of zone[Zone!] = 3 :OR:  District of zone[Zone!] = 8, Unallocated land\
+		[Zone!], 0))
+	~	m*m
+	~	For all districts of zone = 2 and for all districts of zone = 5
+		act is the action to take with 0 meaning sum, 1 product, 2 minimum, 3 maximum and 4 \
+		average
+		VECTOR SELECT( Population density[City center] , Population density[Zone!] , 0, 4, 0)
+		VECTOR SELECT( 'District of zone[Zone!,2]' , 'District of zone[Zone!]' , \
+		0, 4, 0)
+	|
+
+Utility private AV[Zone]=
+	Constant private car*(Costs private AV[Zone]+Attention for AV traffic management)
+	~	Dmnl
+	~		|
+
+Utility private car[Zone]=
+	Constant private car*(Costs private car[Zone]+Attention for car traffic management)
+	~	Dmnl
+	~		|
+
+Utility shared AV[Zone]=
+	Constant private car*(Costs shared AV[Zone]+Attention for AV traffic management)
+	~	Dmnl
+	~		|
+
+Utility shared car[Zone]=
+	Constant private car*(Costs shared car[Zone]+Attention for car traffic management)
+	~	Dmnl
+	~		|
+
+Vacancy rate[Zone]=
+	ZIDZ(MAX((Buildings[Zone,Housing]-Households[Zone]),0),Buildings[Zone,Housing])
+	~	Dmnl
+	~	Mag niet negatief zijn
+	|
+
+Vacancy threshold=
+	0.1
+	~	Dmnl/Year
+	~	The maximum fraction of empty houses in a zone
+	|
+
+Value of time car driver=
+	15.19
+	~	euro/hour
+	~	Transport transitions in Copenhagen: Comparing the cost of cars and \
+		bicycles (Gossling & Choi, 2015)
+	|
+
+Value of time car passenger=
+	12.49
+	~	euro/hour
+	~	test
+	|
+
+Value of time in private AV=
+	5.39
+	~	euro/hour
+	~	office AV (De Looff, 2017)
+	|
+
+Zone:
+	GET DIRECT SUBSCRIPT('?Tag','Zonedata860','D2','D','Zone ')
+	~	
+	~		|
+
+Zone district:
+	Amager, Christianshavn, Eastern Zealand, Frederiksberg, Indre By, Norrebro, Northern Suburbs\
+		, Northern Zealand, Osterbro, Vestegnen, Vesterbro
+	~	
+	~		|
+
+Zone district group:
+	City center, Other urban districts, Suburbs, Rural areas
+	~	
+	~		|
+
+Zone length[Zone]=
+	SQRT(Total zone surface[Zone])
+	~	m
+	~	Simplified
+	|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 2070
+	~	Year
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 2015
+	~	Year
+	~	The initial time for the simulation.
+	|
+
+moving priority vector ptype=
+	4
+	~	Dmnl
+	~	ptype 0 - Fixed quantity
+		ptype 1 - Rectangular
+		ptype 2 - Triangular
+		ptype 3 - Normal
+		ptype 4 - Exponential
+		ptype 5 - Constant Elasticity
+	|
+
+moving priority vector pwidth=
+	1
+	~	Dmnl
+	~		|
+
+SAVEPER  = 0.5
+	~	Year [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 0.03125
+	~	Year [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Land use
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,90,0
+10,1,Initial parking places,-149,152,43,19,8,3,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+10,2,Demand for new jobs,658,660,58,19,8,2,0,3,-1,0,0,0,128-128-128,128-128-128,|12||128-128-128
+10,3,Parking demand,945,549,31,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,4,Parking surface per car,859,598,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,5,Initial vacancy rate city,-361,4,45,19,8,3,0,0,-1,0,0,0
+1,6,5,7,1,0,0,0,0,0,0,-1--1--1,,1|(-410,-39)|
+10,7,Initial places,-542,-108,41,11,8,3,0,0,-1,0,0,0
+10,8,Initial jobs,-897,86,33,11,8,3,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||128-128-128
+10,9,Initial population,-512,62,52,11,8,3,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||128-128-128
+1,10,9,7,1,0,0,0,0,0,0,-1--1--1,,1|(-512,-6)|
+10,11,Total zone surface,535,135,57,11,8,3,0,4,0,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+10,12,Average household size,-691,61,46,19,8,3,0,0,-1,0,0,0
+1,13,12,7,1,0,0,0,0,64,0,-1--1--1,,1|(-616,-37)|
+10,14,Demand for new houses,287,542,58,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,15,Households,-481,-983,38,11,8,3,0,0,-1,0,0,0
+10,16,Total population per zone,-566,-1117,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,17,16,15,1,0,0,0,0,64,0,-1--1--1,,1|(-511,-1040)|
+10,18,Total city surface,1452,15,54,11,8,3,0,0,0,0,0,0
+10,19,Total initial city jobs,-763,226,48,19,8,3,0,0,-1,0,0,0
+1,20,8,19,1,0,0,0,0,64,0,-1--1--1,,1|(-844,165)|
+10,21,Initial parking surface per car,156,146,48,19,8,3,0,0,0,0,0,0
+10,22,One year,2386,844,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,23,One year,-505,-911,30,11,8,3,0,0,-1,0,0,0
+10,24,Allocated land,517,-62,40,20,3,3,0,0,0,0,0,0
+10,25,Unallocated land,844,47,40,20,3,3,0,0,0,0,0,0
+1,26,28,25,4,0,0,22,0,0,0,-1--1--1,,1|(844,-71)|
+1,27,28,24,100,0,0,22,0,0,0,-1--1--1,,1|(616,-71)|
+11,28,1548,681,-71,6,8,34,3,0,0,1,0,0,0
+10,29,Reallocation,681,-58,39,11,40,3,0,0,-1,0,0,0
+1,30,32,24,4,0,0,22,0,0,0,-1--1--1,,3|(511,52)|(511,52)|(511,5)|
+1,31,32,25,100,0,0,22,0,0,0,-1--1--1,,1|(741,52)|
+11,32,1372,673,52,6,8,34,3,0,0,1,0,0,0
+10,33,Allocation,673,71,33,11,40,3,0,0,-1,0,0,0
+10,34,Initial land used,452,-21,49,11,8,3,0,0,-1,0,0,0
+1,35,34,24,0,0,0,0,0,64,1,-1--1--1,,1|(471,-34)|
+10,36,Initial parking surface,325,75,43,19,8,3,0,0,-1,0,0,0
+10,37,Initial road transport surface,425,138,54,19,8,3,0,0,-1,0,0,0
+1,38,36,34,1,0,0,0,0,128,0,-1--1--1,,1|(349,64)|
+1,39,37,34,1,0,0,0,0,128,0,-1--1--1,,1|(453,-10)|
+10,40,Fraction unallocated land,328,-242,52,19,8,3,0,0,0,0,0,0
+10,41,Unallocated land,218,-273,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,42,41,40,1,0,0,0,0,128,0,-1--1--1,,1|(276,-265)|
+10,43,Total zone surface,433,-273,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,44,43,40,1,0,0,0,0,128,0,-1--1--1,,1|(364,-270)|
+1,45,25,33,1,0,0,0,0,128,0,-1--1--1,,1|(759,38)|
+10,46,Demand for new residential surface,431,490,64,19,8,3,0,0,-1,0,0,0
+1,47,14,46,1,0,0,0,0,64,0,-1--1--1,,1|(331,488)|
+10,48,Built up reallocation,552,-277,37,19,8,3,0,0,-1,0,0,0
+1,49,48,29,1,0,0,0,0,128,0,-1--1--1,,1|(591,-157)|
+10,50,Demand for new business surface,626,567,54,19,8,3,0,0,0,0,0,0
+1,51,2,50,1,0,0,0,0,64,0,-1--1--1,,1|(635,564)|
+10,52,Economic growth rate,97,-1092,56,19,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+10,53,Initial places,-86,-500,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,54,Demand for new parking surface,867,407,54,19,8,3,0,0,0,0,0,0
+1,55,3,54,1,0,0,0,0,64,0,-1--1--1,,1|(919,472)|
+1,56,4,54,1,0,0,0,0,64,0,-1--1--1,,1|(875,506)|
+10,57,Reallocation of parking surface,820,-212,49,19,8,3,0,0,-1,0,0,0
+1,58,57,29,1,0,0,0,0,128,0,-1--1--1,,1|(774,-130)|
+10,59,Parking surface per car,917,-343,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,60,59,57,1,0,0,0,0,128,0,-1--1--1,,1|(887,-270)|
+10,61,Reallocation of road surface,919,-154,48,19,8,3,0,0,0,0,0,0
+1,62,61,29,1,0,0,0,0,128,0,-1--1--1,,1|(799,-92)|
+10,63,Total initial city houses,-549,156,48,19,8,3,0,0,-1,0,0,0
+10,64,Total zone surface1,1553,-133,34,19,8,3,0,0,0,0,0,0
+10,65,Allocated land,1460,-294,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,66,65,64,1,0,0,0,0,128,0,-1--1--1,,1|(1462,-217)|
+10,67,Unallocated land,1586,-285,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,68,67,64,1,0,0,0,0,128,0,-1--1--1,,1|(1595,-207)|
+10,69,Road length,231,196,51,19,8,3,0,4,0,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+10,70,Demand for new road surface,1070,295,54,19,8,3,0,0,0,0,0,0
+10,71,Buildings under construction,-424,-553,63,25,3,131,0,0,0,0,0,0
+10,72,Buildings,-18,-549,54,27,3,131,0,0,0,0,0,0
+1,73,75,72,4,0,0,22,0,0,0,-1--1--1,,1|(-145,-550)|
+1,74,75,71,100,0,0,22,0,0,0,-1--1--1,,1|(-295,-550)|
+11,75,2252,-223,-550,6,8,34,3,0,0,1,0,0,0
+10,76,Construction and procurement buildings,-223,-523,71,19,40,3,0,0,-1,0,0,0
+1,77,78,72,100,0,0,22,0,0,0,-1--1--1,,1|(71,-552)|
+11,78,2876,112,-552,6,8,34,3,0,0,1,0,0,0
+10,79,Demolition buildings,112,-525,35,19,40,3,0,0,-1,0,0,0
+10,80,Initial buildings under construction,-498,-494,61,19,8,3,0,0,-1,0,0,0
+1,81,7,80,1,0,0,0,0,64,0,-1--1--1,,1|(-554,-208)|
+1,82,71,76,0,0,0,0,0,64,1,-1--1--1,,1|(-335,-539)|
+10,83,Building time,-125,-446,41,11,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,84,83,76,1,0,0,0,0,64,0,-1--1--1,,1|(-124,-503)|
+10,85,Allocation,-800,-580,42,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,86,78,108,4,0,0,22,0,0,0,-1--1--1,,1|(161,-552)|
+12,87,48,-707,-556,10,8,0,3,0,0,-1,0,0,0
+1,88,90,71,4,0,0,22,0,0,0,-1--1--1,,1|(-536,-556)|
+1,89,90,87,100,0,0,22,0,0,0,-1--1--1,,1|(-647,-556)|
+11,90,48,-592,-556,6,8,34,3,0,0,1,0,0,0
+10,91,Allocation building surface,-592,-529,59,19,40,3,0,0,-1,0,0,0
+1,92,80,71,0,0,0,0,0,64,1,-1--1--1,,1|(-471,-516)|
+1,93,85,91,1,0,0,0,0,128,0,-1--1--1,,1|(-710,-539)|
+10,94,Housing demolition,124,-681,60,11,8,3,0,0,-1,0,0,0
+1,95,94,79,1,0,0,0,0,64,0,-1--1--1,,1|(140,-615)|
+1,96,72,94,1,0,0,0,0,64,0,-1--1--1,,1|(25,-634)|
+10,97,Construction aging,-304,-197,58,11,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||128-128-128
+10,98,Vacancy threshold,322,-855,58,11,8,3,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+1,99,98,94,1,0,0,0,0,128,0,-1--1--1,,1|(221,-788)|
+10,100,Average road width,224,251,64,19,8,3,0,4,0,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+10,101,Lane width,1138,-163,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,102,Road length,1077,-203,47,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,103,102,61,1,0,0,0,0,128,0,-1--1--1,,1|(994,-161)|
+1,104,101,61,1,0,0,0,0,128,0,-1--1--1,,1|(1037,-134)|
+1,105,91,76,1,0,0,0,2,129,0,-1--1--1,|12||0-0-0,1|(-415,-624)|
+10,106,Building delay order,-296,-463,45,19,8,3,0,0,-1,0,0,0
+1,107,106,76,0,0,0,0,0,64,1,-1--1--1,,1|(-266,-488)|
+10,108,Buildings being demolished,257,-553,53,29,3,131,0,0,0,0,0,0
+10,109,Actual decommissioning of road lanes,1114,-284,62,28,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,110,109,61,0,0,0,0,0,64,0,-1--1--1,,1|(1015,-218)|
+12,111,48,486,-555,10,8,0,3,0,0,-1,0,0,0
+1,112,114,111,4,0,0,22,0,0,0,-1--1--1,,1|(436,-554)|
+1,113,114,108,100,0,0,22,0,0,0,-1--1--1,,1|(347,-554)|
+11,114,48,391,-554,6,8,34,3,0,0,1,0,0,0
+10,115,Reallocation of building surface,391,-527,49,19,40,3,0,0,-1,0,0,0
+1,116,79,115,1,0,0,0,2,65,0,-1--1--1,|12||0-0-0,1|(245,-493)|
+10,117,Demolishment delay buildings,507,-709,64,19,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,118,117,115,1,0,0,0,0,64,0,-1--1--1,,1|(470,-629)|
+1,119,115,48,1,0,0,0,0,64,0,-1--1--1,,1|(494,-418)|
+1,120,8,7,1,0,0,0,0,64,0,-1--1--1,,1|(-754,-6)|
+1,121,9,63,1,0,0,0,0,64,0,-1--1--1,,1|(-515,91)|
+12,122,0,2105,-108,70,15,8,135,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+Global uncertainty
+12,123,0,2106,-78,70,15,8,135,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+Policy
+12,124,0,2105,-48,69,14,8,135,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+AV variable
+12,125,0,2105,-16,69,18,8,135,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+Subscripted per zone
+12,126,0,2105,19,69,18,8,135,0,4,-1,0,0,0,-1--1--1,255-0-0,|12||0-0-0
+Scale values
+12,127,0,2106,-150,33,11,8,7,0,0,-1,0,0,0
+LEGEND
+10,128,Expected housing shortage,-440,-745,56,19,8,3,0,0,0,0,0,0
+1,129,72,128,1,0,0,0,0,64,0,-1--1--1,,1|(-222,-663)|
+10,130,Forecasted households,-615,-740,36,19,8,3,0,0,-1,0,0,0
+1,131,130,128,1,0,0,0,0,64,0,-1--1--1,,1|(-533,-727)|
+10,132,Expected population,-793,-799,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,133,132,130,1,0,0,0,0,64,0,-1--1--1,,1|(-726,-764)|
+10,134,Average household size,-688,-872,51,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,135,134,130,1,0,0,0,0,128,0,-1--1--1,,1|(-672,-781)|
+10,136,Demand for new houses,-293,-857,54,19,8,3,0,0,-1,0,0,0
+10,137,Entering population,-292,-952,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,138,137,136,0,0,0,0,0,0,0,-1--1--1,,1|(-293,-911)|
+1,139,128,136,1,0,0,0,0,128,0,-1--1--1,,1|(-383,-803)|
+1,140,134,136,1,0,0,0,0,128,0,-1--1--1,,1|(-492,-886)|
+10,141,Available houses,-278,-1005,53,11,8,3,0,0,-1,0,0,0
+1,142,72,141,1,0,0,0,0,0,0,-1--1--1,,1|(-62,-841)|
+1,143,15,141,1,0,0,0,0,0,0,-1--1--1,,1|(-401,-1034)|
+1,144,134,15,1,0,0,0,0,128,0,-1--1--1,,1|(-623,-935)|
+1,145,141,183,1,0,0,0,2,129,0,-1--1--1,|12||0-0-0,1|(4,-904)|
+1,146,12,63,1,0,0,0,0,64,0,-1--1--1,,1|(-626,111)|
+1,147,5,63,1,0,0,0,0,64,0,-1--1--1,,1|(-404,101)|
+10,148,Demand for new jobs,9,-998,54,19,8,3,0,4,-1,0,0,0,128-128-128,128-128-128,|12||128-128-128
+1,149,72,148,1,0,0,0,0,0,0,-1--1--1,,1|(21,-773)|
+1,150,52,148,1,0,0,0,0,0,0,-1--1--1,,1|(73,-1023)|
+1,151,21,36,1,0,0,0,0,0,0,-1--1--1,,1|(237,127)|
+1,152,100,37,1,0,0,0,0,0,0,-1--1--1,,1|(283,238)|
+1,153,69,37,1,0,0,0,0,0,0,-1--1--1,,1|(304,143)|
+1,154,23,141,1,0,0,0,0,64,0,-1--1--1,,1|(-416,-969)|
+1,155,23,128,1,0,0,0,0,64,0,-1--1--1,,1|(-489,-827)|
+10,156,One year,937,331,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,157,72,136,1,0,0,0,0,64,0,-1--1--1,,1|(-97,-736)|
+1,158,23,136,1,0,0,0,0,64,0,-1--1--1,,1|(-414,-912)|
+10,159,Initial vacancy rate city,-212,-902,50,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,160,159,136,0,0,0,0,0,128,0,-1--1--1,,1|(-247,-882)|
+1,161,156,54,1,0,0,0,0,128,0,-1--1--1,,1|(915,373)|
+10,162,Priority vector,563,210,45,11,8,3,0,0,-1,0,0,0
+1,163,162,33,1,0,0,0,0,64,0,-1--1--1,,1|(609,110)|
+10,164,Allocation extra,623,280,50,11,8,3,0,0,-1,0,0,0
+1,165,164,162,1,0,0,0,0,64,0,-1--1--1,,1|(623,238)|
+10,166,Allocation integer type,437,273,56,19,8,3,0,0,-1,0,0,0
+1,167,166,162,1,0,0,0,0,64,0,-1--1--1,,1|(494,236)|
+10,168,Allocation priority,718,172,56,11,8,3,0,0,-1,0,0,0
+1,169,168,162,1,0,0,0,0,64,0,-1--1--1,,1|(663,170)|
+10,170,Allocation priority type,491,330,57,19,8,3,0,0,-1,0,0,0
+1,171,170,162,1,0,0,0,0,64,0,-1--1--1,,1|(540,274)|
+10,172,Allocation priority width,420,239,57,19,8,3,0,0,-1,0,0,0
+1,173,172,162,1,0,0,0,0,64,0,-1--1--1,,1|(484,210)|
+10,174,New demand for land type,835,261,54,19,8,3,0,0,-1,0,0,0
+1,175,174,33,1,0,0,0,0,64,0,-1--1--1,,1|(793,136)|
+1,176,46,174,1,0,0,0,0,128,0,-1--1--1,,1|(591,367)|
+1,177,50,174,1,0,0,0,0,128,0,-1--1--1,,1|(728,384)|
+1,178,54,174,1,0,0,0,0,128,0,-1--1--1,,1|(846,329)|
+1,179,70,174,1,0,0,0,0,128,0,-1--1--1,,1|(917,284)|
+10,180,Allocation delay,631,11,51,11,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,181,180,33,0,0,0,0,0,64,0,-1--1--1,,1|(647,35)|
+1,182,174,168,1,0,0,0,0,64,0,-1--1--1,,1|(743,225)|
+10,183,Delayed available houses,118,-811,56,19,8,3,0,0,0,0,0,0
+1,184,183,94,1,0,0,0,0,128,0,-1--1--1,,1|(129,-745)|
+10,185,Delay order for housing demolition,120,-889,59,19,8,3,0,0,-1,0,0,0
+1,186,185,183,0,0,0,0,0,64,1,-1--1--1,,1|(119,-856)|
+10,187,Delay time housing demolition,278,-932,60,19,8,3,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+1,188,187,183,1,0,0,0,0,64,0,-1--1--1,,1|(221,-856)|
+10,189,Buildings available including under construction,-241,-747,58,28,8,3,0,0,0,0,0,0
+1,190,72,189,1,0,0,0,0,64,0,-1--1--1,,1|(-118,-675)|
+1,191,189,136,1,0,0,0,0,128,0,-1--1--1,,1|(-250,-790)|
+10,192,Total jobs in city,50,-378,52,11,8,3,0,0,-1,0,0,0
+1,193,72,192,1,0,0,0,0,0,0,-1--1--1,,1|(16,-439)|
+1,194,71,189,1,0,0,0,0,64,0,-1--1--1,,1|(-374,-655)|
+10,195,Time,257,-654,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,196,195,94,0,0,0,0,0,64,0,-1--1--1,,1|(211,-663)|
+10,197,TIME STEP,246,-726,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,198,197,94,0,0,0,0,0,64,0,-1--1--1,,1|(191,-705)|
+10,199,Parking available including under construction,791,480,59,28,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,200,199,54,0,0,0,0,0,64,0,-1--1--1,,1|(828,443)|
+10,201,Parking decay,820,-174,54,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,202,Actual decommissioning of parking surface,751,-306,62,28,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,203,202,57,0,0,0,0,0,64,0,-1--1--1,,1|(784,-260)|
+10,204,Building possibility switch,-142,-176,59,19,8,3,0,0,0,0,0,0
+10,205,Building possibility switch,585,464,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,206,205,46,1,0,0,0,0,128,0,-1--1--1,,1|(522,508)|
+1,207,205,50,1,0,0,0,0,128,0,-1--1--1,,1|(592,528)|
+1,208,209,71,4,0,0,22,2,0,0,-1--1--1,|12||0-0-0,1|(-424,-284)|
+11,209,2844,-248,-284,6,8,34,131,0,0,1,0,0,0
+10,210,Renovation of buildings,-248,-257,45,19,40,3,0,0,0,0,0,0
+1,211,204,210,1,0,0,0,0,64,0,-1--1--1,,1|(-180,-199)|
+1,212,72,210,1,0,0,0,0,64,0,-1--1--1,,1|(-62,-378)|
+1,213,97,210,1,0,0,0,0,64,0,-1--1--1,,1|(-306,-234)|
+1,214,7,72,0,0,0,0,0,64,1,-1--1--1,,1|(-296,-315)|
+1,215,209,72,100,0,0,22,0,0,0,-1--1--1,,1|(-18,-284)|
+10,216,District of zone,58,-165,48,11,8,3,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+1,217,216,204,1,0,0,0,0,128,0,-1--1--1,,1|(-28,-207)|
+10,218,Threshold value for new lane construction,1193,144,69,19,8,3,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||128-128-128
+10,219,Initial business surface,327,13,46,19,8,3,0,0,0,0,0,0
+10,220,Initial residential surface,306,-80,51,19,8,3,0,0,0,0,0,0
+1,221,220,34,1,0,0,0,0,128,0,-1--1--1,,1|(399,-63)|
+1,222,219,34,1,0,0,0,0,128,0,-1--1--1,,1|(376,-19)|
+10,223,Initial surface per place,-42,-21,55,19,8,3,0,0,0,0,0,0
+1,224,216,223,1,0,0,0,0,128,0,-1--1--1,,1|(-9,-79)|
+1,225,223,220,1,0,0,0,0,128,0,-1--1--1,,1|(83,-86)|
+1,226,223,219,1,0,0,0,0,128,0,-1--1--1,,1|(116,45)|
+10,227,Initial places,163,-46,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,228,227,219,1,0,0,0,0,128,0,-1--1--1,,1|(228,-13)|
+1,229,227,220,1,0,0,0,0,128,0,-1--1--1,,1|(216,-81)|
+10,230,Vacancy rate,-212,-1084,42,11,8,3,0,0,-1,0,0,0
+1,231,15,230,1,0,0,0,0,0,0,-1--1--1,,1|(-417,-1067)|
+10,232,Buildings,-146,-1036,38,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,233,232,230,1,0,0,0,0,128,0,-1--1--1,,1|(-161,-1073)|
+10,234,Initial surface per place,611,-449,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,235,234,48,1,0,0,0,0,128,0,-1--1--1,,1|(614,-304)|
+10,236,Total zone surface,1273,-38,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,237,236,18,1,0,0,0,0,128,0,-1--1--1,,1|(1373,-52)|
+10,238,Initial other land,535,86,50,11,8,3,0,0,-1,0,0,0
+1,239,238,34,0,0,0,0,0,64,0,-1--1--1,,1|(497,37)|
+1,240,219,238,0,0,0,0,0,64,0,-1--1--1,,1|(431,49)|
+1,241,36,238,0,0,0,0,0,64,0,-1--1--1,,1|(419,79)|
+1,242,220,238,0,0,0,0,0,64,0,-1--1--1,,1|(419,2)|
+1,243,37,238,0,0,0,0,0,64,0,-1--1--1,,1|(481,111)|
+1,244,11,238,0,0,0,0,0,64,0,-1--1--1,,1|(535,117)|
+10,245,Fraction per land use category,461,-206,55,19,8,3,0,0,0,0,0,0
+1,246,24,245,1,0,0,0,0,64,0,-1--1--1,,1|(505,-128)|
+1,247,43,245,1,0,0,0,0,128,0,-1--1--1,,1|(456,-240)|
+1,248,25,174,1,0,0,0,0,64,0,-1--1--1,,1|(868,144)|
+10,249,Economic growth rate,-661,-411,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,250,249,80,1,0,0,0,0,128,0,-1--1--1,,1|(-621,-436)|
+1,251,210,76,1,0,0,0,2,65,0,-1--1--1,|12||0-0-0,1|(-210,-381)|
+1,252,156,174,1,0,0,0,0,128,0,-1--1--1,,1|(879,303)|
+10,253,One year,-597,-460,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,254,253,80,0,1,0,0,0,128,0,-1--1--1,,1|(-565,-470)|
+10,255,Policy allocation priority,698,124,52,19,8,3,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+10,256,Initial unallocated land,938,82,55,19,8,3,0,0,-1,0,0,0
+1,257,256,25,0,0,0,0,0,64,1,-1--1--1,,1|(891,65)|
+1,258,236,256,1,0,0,0,0,128,0,-1--1--1,,1|(992,51)|
+10,259,Initial surface per place,-617,-660,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,260,259,91,1,0,0,0,0,128,0,-1--1--1,,1|(-585,-610)|
+10,261,Initial surface per place,448,596,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,262,261,50,1,0,0,0,0,128,0,-1--1--1,,1|(566,599)|
+1,263,261,46,1,0,0,0,0,128,0,-1--1--1,,1|(421,548)|
+10,264,Initial fraction unallocated land,959,28,52,19,8,3,0,0,-1,0,0,0
+1,265,264,256,0,0,0,0,0,64,0,-1--1--1,,1|(951,48)|
+10,266,Initial parking places including rural areas,75,83,65,19,8,3,0,0,-1,0,0,0
+1,267,1,266,1,0,0,0,0,0,0,-1--1--1,,1|(-99,101)|
+10,268,Number of cars,-7,199,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,269,268,266,1,0,0,0,0,0,0,-1--1--1,,1|(6,146)|
+1,270,266,36,1,0,0,0,0,64,0,-1--1--1,,1|(203,92)|
+10,271,Unallocated land per district type,934,-54,54,19,8,3,0,0,0,0,0,0
+1,272,25,271,0,0,0,0,0,64,0,-1--1--1,,1|(884,1)|
+10,273,District of zone,1038,-25,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,274,273,271,1,0,0,0,0,128,0,-1--1--1,,1|(1003,-13)|
+10,275,Fraction unallocated land per district type,1095,-86,71,19,8,3,0,0,0,0,0,0
+10,276,Surface per district type,1266,-113,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,277,276,275,0,0,0,0,0,64,0,-1--1--1,,1|(1201,-103)|
+1,278,271,275,0,0,0,0,0,64,0,-1--1--1,,1|(999,-67)|
+10,279,Jobs per district type,141,-423,47,19,8,3,0,0,0,0,0,0
+1,280,72,279,1,0,0,0,0,128,0,-1--1--1,,1|(51,-471)|
+1,281,216,279,1,0,0,0,0,64,0,-1--1--1,,1|(123,-285)|
+10,282,Jobs density per district type,312,-402,52,19,8,3,0,0,0,0,0,0
+1,283,279,282,1,0,0,0,0,128,0,-1--1--1,,1|(233,-442)|
+10,284,Surface per district type,409,-345,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,285,284,282,0,0,0,0,0,64,0,-1--1--1,,1|(366,-370)|
+10,286,Fraction housing per district type,1069,-934,65,19,8,3,0,0,0,0,0,0
+10,287,Fraction per land use category,789,-800,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,288,287,286,1,0,0,0,0,128,0,-1--1--1,,1|(941,-915)|
+10,289,Number of zones per district type,1485,-641,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,290,289,286,0,0,0,0,0,64,0,-1--1--1,,1|(1282,-782)|
+10,291,District of zone,1515,-868,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,292,291,286,0,0,0,0,0,128,0,-1--1--1,,1|(1302,-898)|
+10,293,Fraction business per district type,1067,-857,68,19,8,3,0,0,0,0,0,0
+10,294,Fraction road per district type,1068,-805,56,19,8,3,0,0,0,0,0,0
+10,295,Fraction parking per district type,1075,-743,65,19,8,3,0,0,0,0,0,0
+10,296,Fraction other land per district type,1071,-691,60,19,8,3,0,0,0,0,0,0
+1,297,287,296,1,0,0,0,0,128,0,-1--1--1,,1|(891,-726)|
+1,298,287,295,1,0,0,0,0,128,0,-1--1--1,,1|(916,-764)|
+1,299,287,293,1,0,0,0,0,128,0,-1--1--1,,1|(911,-857)|
+1,300,289,296,0,0,0,0,0,128,0,-1--1--1,,1|(1284,-664)|
+1,301,289,295,0,0,0,0,0,128,0,-1--1--1,,1|(1289,-688)|
+1,302,291,296,0,0,0,0,0,128,0,-1--1--1,,1|(1309,-786)|
+1,303,291,293,0,0,0,0,0,128,0,-1--1--1,,1|(1303,-862)|
+1,304,289,293,0,0,0,0,0,128,0,-1--1--1,,1|(1282,-745)|
+10,305,Number of zones per district type,1082,-592,60,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,306,289,294,0,0,0,0,0,128,0,-1--1--1,,1|(1283,-720)|
+1,307,291,295,0,0,0,0,0,128,0,-1--1--1,,1|(1315,-810)|
+1,308,291,294,0,0,0,0,0,128,0,-1--1--1,,1|(1297,-836)|
+1,309,287,294,1,0,0,0,0,128,0,-1--1--1,,1|(920,-819)|
+10,310,Initial vacancy rate GCA,-376,-116,74,19,8,3,0,0,0,0,0,0
+1,311,310,80,1,0,0,0,0,64,0,-1--1--1,,1|(-474,-296)|
+1,312,216,310,1,0,0,0,0,64,0,-1--1--1,,1|(-137,-80)|
+1,313,5,310,0,0,0,0,0,64,0,-1--1--1,,1|(-368,-50)|
+10,314,Initial vacancy rate suburbs and rural areas,-225,-33,74,19,8,3,0,0,-1,0,0,0
+1,315,314,310,0,0,0,0,0,64,0,-1--1--1,,1|(-295,-72)|
+10,316,Actual road capacity use compared to initial optimum,1356,224,88,28,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,317,316,70,1,0,0,0,0,0,0,-1--1--1,,1|(1203,233)|
+10,318,Initial level of service,1383,364,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,319,318,70,1,0,0,0,0,0,0,-1--1--1,,1|(1229,336)|
+10,320,Lanes available including under construction,1398,451,54,28,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,321,320,70,1,0,0,0,0,0,0,-1--1--1,,1|(1221,383)|
+1,322,218,70,1,0,0,0,0,0,0,-1--1--1,,1|(1108,209)|
+10,323,Time,1238,464,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,324,323,70,1,0,0,0,0,0,0,-1--1--1,,1|(1137,396)|
+10,325,TIME STEP,1091,437,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,326,325,70,1,0,0,0,0,0,0,-1--1--1,,1|(1046,373)|
+10,327,Zone length,1450,303,46,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,328,327,70,1,0,0,0,0,0,0,-1--1--1,,1|(1266,286)|
+10,329,Lane width,1070,333,45,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,330,329,70,0,1,0,0,0,64,0,-1--1--1,,1|(1070,325)|
+10,331,Number of lanes needed to facilitate traffic,1070,333,84,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,332,331,70,0,1,0,0,0,64,0,-1--1--1,,1|(1070,314)|
+10,333,Road surface,275,-146,42,11,8,3,0,0,0,0,0,0
+1,334,24,333,1,0,0,0,0,128,0,-1--1--1,,1|(374,-137)|
+1,335,216,333,1,0,0,0,0,64,0,-1--1--1,,1|(155,-146)|
+10,336,Parking surface,286,-192,49,11,8,3,0,0,0,0,0,0
+1,337,24,336,1,0,0,0,0,64,0,-1--1--1,,1|(411,-159)|
+1,338,216,336,0,0,0,0,0,64,0,-1--1--1,,1|(164,-177)|
+1,339,156,70,0,0,0,0,0,128,0,-1--1--1,,1|(989,317)|
+10,340,One lane,1015,230,38,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,341,340,70,1,0,0,0,0,64,0,-1--1--1,,1|(1021,252)|
+1,342,255,168,0,0,0,0,0,64,0,-1--1--1,,1|(706,145)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Traffic
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,60,0
+10,1,Total commuter trips in morning peak,1032,-780,66,19,8,3,0,0,-1,0,0,0
+10,2,Empty vehicle trips to avoid parking,1308,-142,69,19,8,3,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||128-128-128
+10,3,Modal split car and AV,1131,-875,65,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,4,3,1,1,0,0,0,0,0,0,-1--1--1,,1|(1106,-816)|
+10,5,Car traffic volume in morning peak,1173,-528,65,19,8,3,0,0,-1,0,0,0
+10,6,"2030, fast adoption",211,-730,33,19,8,3,0,0,-1,0,0,0
+10,7,Car traffic management,1973,-94,40,19,8,3,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||128-128-128
+10,8,Value of time in private AV,783,-76,50,19,8,3,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+10,9,"Dispersion of origins/destinations (sprawl)",858,468,60,28,8,3,0,0,-1,0,0,0
+10,10,One year,1012,599,30,11,8,3,0,0,-1,0,0,0
+1,11,10,9,1,0,0,0,0,0,0,-1--1--1,,1|(918,551)|
+10,12,Maximum increased efficiency by AV,2636,-358,64,19,8,3,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+10,13,Exponent travel time,966,-904,48,19,8,3,0,4,-1,0,0,0,-1--1--1,255-0-0,|12||0-0-0
+10,14,Travel time,1251,218,36,11,8,3,0,0,0,0,0,0
+10,15,Initial travel time,1061,156,51,11,8,3,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+1,16,15,14,1,0,0,0,0,64,0,-1--1--1,,1|(1145,163)|
+10,17,Initial trips in morning peak,1451,-281,44,19,8,3,0,4,0,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+10,18,Initial commuter trips in morning peak,1569,-624,67,19,8,3,0,4,0,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+10,19,Fraction commuter trips in morning peak,1460,-367,67,19,8,3,0,0,0,0,0,0
+1,20,18,19,1,0,0,0,0,128,0,-1--1--1,,1|(1539,-501)|
+1,21,17,19,0,0,0,0,0,128,0,-1--1--1,,1|(1454,-318)|
+1,22,19,5,1,0,0,0,0,128,0,-1--1--1,,1|(1336,-458)|
+10,23,Scaling factor commuter trips,1372,-758,48,19,8,3,0,0,-1,0,0,0
+1,24,18,23,1,0,0,0,0,0,0,-1--1--1,,1|(1478,-727)|
+10,25,Persons per car in morning peak,1221,-312,58,19,8,3,0,0,-1,0,0,0
+1,26,25,5,1,0,0,0,0,64,0,-1--1--1,,1|(1248,-414)|
+10,27,Duration of morning peak,1107,-431,44,19,8,3,0,0,0,0,0,0
+1,28,27,5,1,0,0,0,0,128,0,-1--1--1,,1|(1152,-471)|
+10,29,AV traffic volume in morning peak,1142,-229,64,19,8,3,0,0,0,0,0,0
+1,30,27,29,1,0,0,0,0,64,0,-1--1--1,,1|(1074,-336)|
+1,31,19,29,1,0,0,0,0,64,0,-1--1--1,,1|(1321,-267)|
+1,32,25,29,1,0,0,0,0,64,0,-1--1--1,,1|(1195,-269)|
+10,33,Constant trip generation,656,-843,42,19,8,3,0,4,0,0,0,0,-1--1--1,255-0-0,|12||0-0-0
+10,34,Transport friction,863,-774,54,11,8,3,0,0,-1,0,0,0
+1,35,13,34,1,0,0,0,0,64,0,-1--1--1,,1|(926,-818)|
+10,36,Initial average trip distance car,578,348,57,19,8,3,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+10,37,Incoming car commuter trips in morning peak,942,-621,75,19,8,3,0,0,0,0,0,0
+1,38,2,29,1,0,0,0,0,64,0,-1--1--1,,1|(1283,-141)|
+1,39,37,5,1,0,0,0,0,64,0,-1--1--1,,1|(1076,-603)|
+1,40,37,1,1,0,0,0,0,64,0,-1--1--1,,1|(1000,-687)|
+1,41,34,37,1,0,0,0,0,64,0,-1--1--1,,1|(926,-711)|
+10,42,Initial travel time,997,-1022,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,43,Trip attraction,738,-697,45,11,8,3,0,0,0,0,0,0
+1,44,33,43,1,0,0,0,0,128,0,-1--1--1,,1|(710,-778)|
+1,45,43,37,1,0,0,0,0,64,0,-1--1--1,,1|(828,-693)|
+1,46,37,29,1,0,0,0,0,64,0,-1--1--1,,1|(889,-350)|
+10,47,Initial number of lanes,2339,96,52,19,8,3,0,0,0,0,0,0
+10,48,Initial road capacity,2442,-61,34,19,8,3,0,4,0,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+10,49,Designed speed,1141,535,50,11,8,3,0,4,-1,0,0,0,128-128-128,255-160-0,|12||128-128-128
+10,50,Number of lanes,2343,53,40,20,3,3,0,0,0,0,0,0
+1,51,52,50,4,0,0,22,0,0,0,-1--1--1,,1|(2259,57)|
+11,52,1100,2209,57,6,8,34,3,0,0,1,0,0,0
+10,53,Increase in number of lanes,2209,84,60,19,40,3,0,0,-1,0,0,0
+1,54,56,112,4,0,0,22,0,0,0,-1--1--1,,1|(2567,55)|
+1,55,56,50,100,0,0,22,0,0,0,-1--1--1,,1|(2424,55)|
+11,56,5356,2472,55,6,8,34,3,0,0,1,0,0,0
+10,57,Decrease in number of lanes,2472,82,50,19,40,3,0,0,-1,0,0,0
+10,58,Distance within acceptable travel time,877,254,69,19,8,3,0,0,0,0,0,0
+10,59,Acceptable travel time,1013,-60,56,19,8,3,0,0,-1,0,0,0
+1,60,59,58,1,0,0,0,0,64,0,-1--1--1,,1|(909,83)|
+1,61,15,59,1,0,0,0,0,64,0,-1--1--1,,1|(1006,77)|
+1,62,14,59,1,0,0,0,0,64,0,-1--1--1,,1|(1161,80)|
+1,63,8,59,1,0,0,0,0,64,0,-1--1--1,,1|(888,-102)|
+1,64,58,9,1,0,0,0,0,64,0,-1--1--1,,1|(819,353)|
+10,65,Optimal road use density,2217,-413,52,27,3,131,0,0,0,0,0,0
+12,66,48,1983,-425,10,8,0,3,0,0,-1,0,0,0
+1,67,69,65,4,0,0,22,0,0,0,-1--1--1,,1|(2126,-431)|
+1,68,69,66,100,0,0,22,0,0,0,-1--1--1,,1|(2034,-431)|
+11,69,48,2082,-431,6,8,34,3,0,0,1,0,0,0
+10,70,Change in road use density,2082,-404,61,19,40,3,0,0,-1,0,0,0
+10,71,Initial optimal road use density,2418,-153,59,19,8,3,0,0,0,0,0,0
+1,72,71,65,0,0,0,0,0,128,1,-1--1--1,,1|(2324,-274)|
+1,73,48,71,1,0,0,0,0,128,0,-1--1--1,,1|(2430,-100)|
+1,74,65,70,1,0,0,0,0,128,0,-1--1--1,,1|(2155,-456)|
+10,75,Goal of optimal road use density,2260,-261,66,19,8,3,0,0,0,0,0,0
+1,76,71,75,1,0,0,0,0,128,0,-1--1--1,,1|(2321,-193)|
+10,77,Effect of penetration rate AVs on efficiency,2465,-397,71,19,8,3,0,0,0,0,0,0
+1,78,77,75,1,0,0,0,0,128,0,-1--1--1,,1|(2334,-360)|
+10,79,Maximum efficiency without AVs,2623,-270,64,19,8,3,0,0,0,0,0,0
+1,80,79,75,1,0,0,0,0,128,0,-1--1--1,,1|(2446,-235)|
+1,81,75,70,1,0,0,0,0,128,0,-1--1--1,,1|(2138,-312)|
+10,82,Adjustment time for road use density,2007,-507,68,19,8,3,0,20,0,0,0,0,-1--1--1,128-128-128,|12|I|0-0-0
+1,83,82,70,1,0,0,0,0,128,0,-1--1--1,,1|(2051,-470)|
+10,84,Actual vehicle density per lane,1890,-133,50,19,8,3,0,0,0,0,0,0
+1,85,50,84,1,0,0,0,0,128,0,-1--1--1,,1|(2093,-156)|
+10,86,Effect of actual vehicle density on level of service,1393,318,71,28,8,3,0,0,0,0,0,0
+10,87,Actual road capacity use compared to initial optimum,1488,30,88,19,8,3,0,0,0,0,0,0
+1,88,84,87,1,0,0,0,0,128,0,-1--1--1,,1|(1719,-29)|
+1,89,65,87,1,0,0,0,0,128,0,-1--1--1,,1|(1766,-207)|
+1,90,87,86,1,0,0,0,0,128,0,-1--1--1,,1|(1429,138)|
+10,91,Number of lanes needed to facilitate traffic,1810,339,80,19,8,3,0,0,0,0,0,0
+1,92,87,91,1,0,0,0,0,128,0,-1--1--1,,1|(1615,247)|
+1,93,47,91,1,0,0,0,0,128,0,-1--1--1,,1|(2115,298)|
+10,94,Lane expansion in construction,2076,65,56,22,3,131,0,0,0,0,0,0
+1,95,52,94,100,0,0,22,0,0,0,-1--1--1,,1|(2167,57)|
+1,96,97,94,4,0,0,22,0,0,0,-1--1--1,,1|(1991,58)|
+11,97,5388,1957,58,6,8,34,3,0,0,1,0,0,0
+10,98,Allocation new road lanes,1957,85,48,19,40,3,0,0,-1,0,0,0
+1,99,98,53,1,0,0,0,2,129,0,-1--1--1,|12||0-0-0,1|(2066,116)|
+10,100,Initial lane expansion in preparation,2074,146,66,19,8,3,0,0,0,0,0,0
+10,101,Construction time new road lanes,2153,3,61,19,8,3,0,20,0,0,0,0,-1--1--1,128-128-128,|12|I|0-0-0
+1,102,101,53,1,0,0,0,0,128,0,-1--1--1,,1|(2157,46)|
+10,103,Lanes available including under construction,2158,-53,78,19,8,3,0,0,0,0,0,0
+1,104,94,103,1,0,0,0,0,128,0,-1--1--1,,1|(2078,-13)|
+1,105,50,103,1,0,0,0,0,128,0,-1--1--1,,1|(2243,-29)|
+10,106,Threshold value for lane decommissioning,2543,-17,76,19,8,3,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+1,107,106,57,1,0,0,0,0,64,0,-1--1--1,,1|(2519,27)|
+10,108,Time,2604,194,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,109,108,57,1,0,0,0,0,64,0,-1--1--1,,1|(2512,162)|
+10,110,TIME STEP,2611,146,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,111,110,57,1,0,0,0,0,64,0,-1--1--1,,1|(2546,142)|
+10,112,Decommisioning of road lanes,2720,55,63,20,3,131,0,0,0,0,0,0
+12,113,48,3014,53,10,8,0,3,0,0,-1,0,0,0
+1,114,116,113,4,0,0,22,0,0,0,-1--1--1,,1|(2951,53)|
+1,115,116,112,100,0,0,22,0,0,0,-1--1--1,,1|(2835,53)|
+11,116,48,2893,53,6,8,34,3,0,0,1,0,0,0
+10,117,Actual decommissioning of road lanes,2893,89,62,28,40,3,0,0,-1,0,0,0
+10,118,Initial decommissioning of road lanes,2703,-4,73,19,8,3,0,0,-1,0,0,0
+1,119,118,112,0,0,0,0,0,64,1,-1--1--1,,1|(2708,18)|
+1,120,57,117,1,0,0,0,2,65,0,-1--1--1,|12||0-0-0,1|(2666,111)|
+10,121,Road lane decommissioning delay,2909,176,73,19,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,122,121,117,0,0,0,0,0,64,0,-1--1--1,,1|(2903,143)|
+1,123,50,57,1,0,0,0,0,64,0,-1--1--1,,1|(2406,25)|
+1,124,86,14,1,0,0,0,0,128,0,-1--1--1,,1|(1299,269)|
+1,125,12,75,1,0,0,0,0,128,0,-1--1--1,,1|(2427,-341)|
+10,126,Buildings,593,-767,38,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,127,126,43,1,0,0,0,0,128,0,-1--1--1,,1|(667,-741)|
+10,128,Allocation,1874,-4,42,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,129,128,98,1,0,0,0,0,64,0,-1--1--1,,1|(1897,36)|
+1,130,7,100,1,0,0,0,0,64,0,-1--1--1,,1|(1985,13)|
+10,131,Traffic speed,1237,482,41,11,8,3,0,0,0,0,0,0
+1,132,49,131,1,0,0,0,0,64,0,-1--1--1,,1|(1190,504)|
+1,133,86,131,1,0,0,0,0,64,0,-1--1--1,,1|(1319,418)|
+1,134,131,58,1,0,0,0,0,64,0,-1--1--1,,1|(1040,410)|
+12,135,0,2999,-325,70,15,8,135,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+Global uncertainty
+12,136,0,3000,-295,70,15,8,135,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+Policy
+12,137,0,2999,-265,69,14,8,135,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+AV variable
+12,138,0,2999,-233,69,18,8,135,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+Subscripted per zone
+12,139,0,2999,-198,69,18,8,135,0,4,-1,0,0,0,-1--1--1,255-0-0,|12||0-0-0
+Scale values
+12,140,0,3000,-367,33,11,8,7,0,0,-1,0,0,0
+LEGEND
+1,141,17,5,0,0,0,0,0,64,1,-1--1--1,,1|(1317,-400)|
+10,142,Delay time lane decommissioning,2282,370,54,19,8,3,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+10,143,Delay order for lane decommissioning,2413,362,64,19,8,3,0,0,-1,0,0,0
+10,144,Delayed number of lanes needed to facilitate traffic,2334,293,80,19,8,3,0,0,0,0,0,0
+1,145,143,144,0,0,0,0,0,64,1,-1--1--1,,1|(2378,331)|
+1,146,142,144,1,0,0,0,0,64,0,-1--1--1,,1|(2314,333)|
+1,147,91,144,1,0,0,0,2,65,0,-1--1--1,|12||0-0-0,1|(2058,380)|
+1,148,144,57,1,0,0,0,0,64,0,-1--1--1,,1|(2434,204)|
+10,149,Road length,1935,151,38,11,8,3,0,0,-1,0,0,0
+10,150,Lane width,1844,217,36,11,8,3,0,0,-1,0,0,0
+10,151,Average road width,1767,159,44,19,8,3,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+1,152,151,150,1,0,0,0,0,0,0,-1--1--1,,1|(1803,197)|
+1,153,47,150,1,0,0,0,0,0,0,-1--1--1,,1|(2088,240)|
+1,154,47,144,0,0,0,0,0,128,1,-1--1--1,,1|(2336,187)|
+1,155,157,94,4,0,0,22,0,0,0,-1--1--1,,1|(2076,-136)|
+1,156,157,50,100,0,0,22,0,0,0,-1--1--1,,1|(2343,-136)|
+11,157,2700,2197,-136,8,6,33,3,0,0,3,0,0,0
+10,158,Renovation of lanes,2197,-161,45,19,40,3,0,0,0,0,0,0
+1,159,50,158,1,0,0,0,0,64,0,-1--1--1,,1|(2308,-72)|
+1,160,47,50,0,0,0,0,0,64,1,-1--1--1,,1|(2338,81)|
+10,161,Initial road transport surface,2053,216,58,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,162,161,100,1,0,0,0,0,64,0,-1--1--1,,1|(2070,180)|
+1,163,150,100,1,0,0,0,0,64,0,-1--1--1,,1|(1941,199)|
+1,164,149,100,1,0,0,0,0,64,0,-1--1--1,,1|(1986,163)|
+12,165,48,1830,57,10,8,0,3,0,0,-1,0,0,0
+1,166,97,165,100,0,0,22,0,0,0,-1--1--1,,1|(1895,58)|
+1,167,150,98,1,0,0,0,0,64,0,-1--1--1,,1|(1882,143)|
+1,168,149,98,1,0,0,0,0,64,0,-1--1--1,,1|(1930,126)|
+10,169,Initial car commuter trips in morning peak,1479,-923,67,19,8,3,0,0,0,0,0,0
+1,170,169,23,1,0,0,0,0,128,0,-1--1--1,,1|(1459,-830)|
+10,171,Initial transport friction,1133,-971,48,19,8,3,0,0,-1,0,0,0
+1,172,171,169,1,0,0,0,0,64,0,-1--1--1,,1|(1286,-973)|
+10,173,Initial trip attraction,1342,-1020,30,19,8,3,0,0,-1,0,0,0
+1,174,173,169,1,0,0,0,0,64,0,-1--1--1,,1|(1417,-989)|
+1,175,23,37,1,0,0,0,0,128,0,-1--1--1,,1|(1107,-695)|
+1,176,33,173,1,0,0,0,0,64,0,-1--1--1,,1|(859,-1034)|
+10,177,Initial jobs,1529,-1019,42,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,178,177,173,1,0,0,0,0,64,0,-1--1--1,,1|(1433,-1041)|
+1,179,13,171,1,0,0,0,0,64,0,-1--1--1,,1|(1046,-943)|
+1,180,42,171,1,0,0,0,0,128,0,-1--1--1,,1|(1063,-1021)|
+10,181,Value of time car driver,803,33,55,19,8,3,0,0,-1,0,0,0
+1,182,181,59,1,0,0,0,0,64,0,-1--1--1,,1|(884,-21)|
+1,183,100,94,0,0,0,0,0,64,1,-1--1--1,,1|(2074,113)|
+1,184,158,53,1,0,0,0,2,65,0,-1--1--1,|12||0-0-0,1|(2265,-39)|
+1,185,7,158,1,0,0,0,0,64,0,-1--1--1,,1|(2079,-141)|
+10,186,One year,2238,-206,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,187,186,158,0,0,0,0,0,128,0,-1--1--1,,1|(2225,-193)|
+10,188,Number of zones to cross,708,-455,55,19,8,3,0,0,0,0,0,0
+1,189,36,188,1,0,0,0,0,64,0,-1--1--1,,1|(504,-80)|
+10,190,Zone length,467,-301,37,11,8,3,0,0,-1,0,0,0
+1,191,190,197,1,0,0,0,0,64,0,-1--1--1,,1|(439,-377)|
+1,192,188,5,1,0,0,0,0,128,0,-1--1--1,,1|(862,-540)|
+10,193,Total zone surface,450,-173,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,194,193,190,1,0,0,0,0,64,0,-1--1--1,,1|(431,-242)|
+10,195,km to m ratio,325,-356,43,11,8,3,0,0,-1,0,0,0
+1,196,195,197,1,0,0,0,0,128,0,-1--1--1,,1|(357,-392)|
+10,197,Average zone length,468,-439,44,19,8,3,0,0,0,0,0,0
+1,198,197,188,1,0,0,0,0,128,0,-1--1--1,,1|(545,-494)|
+1,199,48,47,1,0,0,0,0,64,0,-1--1--1,,1|(2424,22)|
+10,200,Number of zones to cross,2312,213,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,201,200,47,1,0,0,0,0,128,0,-1--1--1,,1|(2340,153)|
+10,202,Initial trips in morning peak,2369,177,48,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,203,202,47,0,0,0,0,0,128,0,-1--1--1,,1|(2356,143)|
+10,204,Time,52,-682,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,205,204,6,0,0,0,0,0,64,0,-1--1--1,,1|(121,-703)|
+10,206,New uses for cars,1156,-106,57,11,8,3,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+1,207,206,29,1,0,0,0,0,128,0,-1--1--1,,1|(1130,-166)|
+1,208,188,29,1,0,0,0,0,64,0,-1--1--1,,1|(855,-272)|
+10,209,Total traffic volume in morning peak,1662,-298,69,19,8,3,0,0,0,0,0,0
+1,210,5,209,1,0,0,0,0,128,0,-1--1--1,,1|(1547,-424)|
+1,211,29,209,1,0,0,0,0,128,0,-1--1--1,,1|(1512,-228)|
+1,212,209,84,1,0,0,0,0,128,0,-1--1--1,,1|(1825,-220)|
+10,213,Switch Penetration rate AV,264,-451,60,19,8,3,0,4,0,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+10,214,Penetration rate AV,994,-421,55,19,8,2,0,3,0,0,0,0,128-128-128,128-192-255,|12||128-128-128
+10,215,"2030, slow adoption",202,-664,36,19,8,3,0,0,0,0,0,0
+10,216,"2035, fast adoption",212,-618,33,19,8,3,0,0,0,0,0,0
+10,217,"2035, slow adoption",191,-551,36,19,8,3,0,0,0,0,0,0
+1,218,214,29,1,0,0,0,0,64,0,-1--1--1,,1|(1041,-310)|
+1,219,214,59,1,0,0,0,0,64,0,-1--1--1,,1|(938,-248)|
+1,220,214,5,1,0,0,0,0,64,0,-1--1--1,,1|(1040,-480)|
+10,221,Penetration rate AV,369,-581,50,19,8,3,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+1,222,6,221,0,0,0,0,0,0,0,-1--1--1,,1|(284,-661)|
+1,223,215,221,0,0,0,0,0,0,0,-1--1--1,,1|(277,-627)|
+1,224,216,221,0,0,0,0,0,0,0,-1--1--1,,1|(275,-604)|
+1,225,217,221,0,0,0,0,0,0,0,-1--1--1,,1|(266,-564)|
+1,226,213,221,0,0,0,0,0,0,0,-1--1--1,,1|(311,-511)|
+1,227,204,215,0,0,0,0,0,128,0,-1--1--1,,1|(115,-675)|
+1,228,204,216,0,0,0,0,0,128,0,-1--1--1,,1|(121,-655)|
+1,229,204,217,0,0,0,0,0,128,0,-1--1--1,,1|(111,-626)|
+10,230,Penetration rate AV,2585,-502,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,231,230,77,1,0,0,0,0,128,0,-1--1--1,,1|(2577,-462)|
+10,232,Duration of morning peak,2208,120,48,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,233,232,47,0,0,0,0,0,128,0,-1--1--1,,1|(2264,110)|
+10,234,Persons per car in morning peak,2199,159,62,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,235,234,47,0,0,0,0,0,128,0,-1--1--1,,1|(2262,130)|
+10,236,Population adult,738,-667,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,237,Population able to drive,523,-675,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,238,237,43,1,0,0,0,0,128,0,-1--1--1,,1|(633,-649)|
+10,239,Initial population able to drive,1409,-1141,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,240,239,173,1,0,0,0,0,64,0,-1--1--1,,1|(1357,-1092)|
+12,241,0,320,-8,126,34,8,7,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
+Increased mobility for those unable to drive is included in the population able to drive
+12,242,0,1315,-844,40,20,8,3,0,0,-1,0,0,0
+10,243,Change in cars per person,1341,-338,52,19,8,2,0,3,0,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,244,243,25,0,0,0,0,0,128,0,-1--1--1,,1|(1290,-328)|
+10,245,Fraction carsharing population,1312,-402,66,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,246,245,25,0,0,0,0,0,64,0,-1--1--1,,1|(1271,-362)|
+1,247,94,53,0,0,0,0,0,64,1,-1--1--1,,1|(2133,73)|
+1,248,10,53,0,0,0,0,0,64,1,-1--1--1,,1|(1594,348)|
+10,249,Delayed acceptable travel time,808,-855,63,19,8,3,0,0,-1,0,0,0
+1,250,249,34,0,0,0,0,0,64,0,-1--1--1,,1|(833,-817)|
+1,251,15,249,0,0,0,0,0,64,1,-1--1--1,,1|(937,-339)|
+10,252,TIME STEP,366,-913,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,253,Acceptable travel time,844,-942,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,254,253,249,1,0,0,0,0,128,0,-1--1--1,,1|(785,-908)|
+10,255,Initial persons per car in morning peak,1161,-371,69,19,8,3,0,0,-1,0,0,0
+1,256,255,25,0,0,0,0,0,64,0,-1--1--1,,1|(1185,-347)|
+10,257,Actual road capacity use compared to initial optimal per district type,1573,368,96,28,8,3,0,0,0,0,0,0
+1,258,87,257,1,0,0,0,0,128,0,-1--1--1,,1|(1487,228)|
+10,259,District of zone,1566,483,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,260,259,257,1,0,0,0,0,64,0,-1--1--1,,1|(1583,439)|
+10,261,Number of zones per district,1657,543,55,19,8,3,0,0,0,0,0,0
+10,262,Number of zones per district type,1728,438,68,19,8,3,0,0,0,0,0,0
+1,263,261,262,1,0,0,0,0,128,0,-1--1--1,,1|(1693,459)|
+1,264,262,257,1,0,0,0,0,128,0,-1--1--1,,1|(1694,397)|
+10,265,Distance within acceptable travel time per district type,717,149,84,19,8,3,0,0,0,0,0,0
+1,266,58,265,1,0,0,0,0,64,0,-1--1--1,,1|(793,219)|
+10,267,District of zone,642,253,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,268,267,265,1,0,0,0,0,64,0,-1--1--1,,1|(692,212)|
+10,269,Number of zones per district type,668,39,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,270,269,265,1,0,0,0,0,128,0,-1--1--1,,1|(673,86)|
+10,271,Delay time travel behavior,658,-964,54,19,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,272,271,249,0,0,0,0,0,64,0,-1--1--1,,1|(726,-913)|
+10,273,Construction delay order,2241,30,46,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,274,273,53,0,0,0,0,0,64,1,-1--1--1,,1|(2228,51)|
+10,275,Initial level of service,1412,469,42,19,8,3,0,0,-1,0,0,0
+1,276,275,86,0,0,0,0,0,64,0,-1--1--1,,1|(1403,404)|
+10,277,Initial level of service,2403,139,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,278,277,47,0,0,0,0,0,128,0,-1--1--1,,1|(2376,121)|
+10,279,Demand for new road surface,1566,666,54,19,8,3,0,0,-1,0,0,0
+1,280,91,279,1,0,0,0,0,0,0,-1--1--1,,1|(1828,505)|
+10,281,Threshold value for new lane construction,1196,705,69,19,8,3,0,4,-1,0,0,0,128-128-128,255-255-0,|12||128-128-128
+1,282,281,279,1,0,0,0,0,0,0,-1--1--1,,1|(1382,711)|
+10,283,Time,1447,788,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,284,283,279,1,0,0,0,0,0,0,-1--1--1,,1|(1524,740)|
+10,285,TIME STEP,1282,765,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,286,285,279,1,0,0,0,0,0,0,-1--1--1,,1|(1409,738)|
+1,287,275,279,1,0,0,0,0,64,0,-1--1--1,,1|(1443,588)|
+10,288,Actual road capacity use compared to initial optimum,1948,657,93,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,289,288,279,1,0,0,0,0,128,0,-1--1--1,,1|(1778,690)|
+10,290,Zone length,1565,791,46,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,291,Lane width,1748,817,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,292,Lanes available including under construction,1828,745,54,28,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,293,292,279,1,0,0,0,0,128,0,-1--1--1,,1|(1697,729)|
+1,294,290,279,1,0,0,0,0,128,0,-1--1--1,,1|(1584,736)|
+1,295,291,279,1,0,0,0,0,128,0,-1--1--1,,1|(1652,753)|
+10,296,Total traffic volume in morning peak per district type,1809,-384,79,28,8,3,0,0,0,0,0,0
+1,297,209,296,0,0,0,0,0,128,0,-1--1--1,,1|(1721,-333)|
+10,298,District of zone,1832,-308,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,299,298,296,0,0,0,0,0,64,0,-1--1--1,,1|(1825,-331)|
+1,300,10,279,1,0,0,0,0,64,0,-1--1--1,,1|(1264,658)|
+10,301,One lane,1551,609,27,11,8,3,0,0,-1,0,0,0
+1,302,301,279,0,0,0,0,0,64,0,-1--1--1,,1|(1555,626)|
+10,303,Sum road length,1699,72,51,11,8,3,0,0,0,0,0,0
+1,304,149,303,1,0,0,0,0,128,0,-1--1--1,,1|(1739,95)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Parking
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,120,0
+10,1,Cars per person,660,384,40,20,3,3,0,0,0,0,0,0
+12,2,48,935,375,10,8,0,3,0,0,-1,0,0,0
+1,3,5,2,4,0,0,22,0,0,0,-1--1--1,,1|(870,375)|
+1,4,5,1,100,0,0,22,0,0,0,-1--1--1,,1|(751,375)|
+11,5,48,809,375,6,8,34,3,0,0,1,0,0,0
+10,6,Decrease in cars per person,809,402,53,19,40,3,0,0,-1,0,0,0
+12,7,48,367,382,10,8,0,3,0,0,-1,0,0,0
+1,8,10,1,4,0,0,22,0,0,0,-1--1--1,,1|(560,382)|
+1,9,10,7,100,0,0,22,0,0,0,-1--1--1,,1|(433,382)|
+11,10,48,495,382,6,8,34,3,0,0,1,0,0,0
+10,11,Increase in cars per person,495,409,50,19,40,3,0,0,-1,0,0,0
+1,12,1,11,1,0,0,0,0,64,0,-1--1--1,,1|(571,418)|
+1,13,1,6,1,0,0,0,0,64,0,-1--1--1,,1|(715,403)|
+10,14,Initial cars per person,660,423,45,19,8,3,0,0,-1,0,0,0
+1,15,14,1,0,0,0,0,0,64,1,-1--1--1,,1|(660,404)|
+10,16,Fraction mobility for those unable to drive,637,569,66,19,8,3,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+1,17,16,11,1,0,0,0,0,64,0,-1--1--1,,1|(547,516)|
+10,18,New uses for cars,556,274,58,19,8,3,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+10,19,Carsharing rate,920,486,48,11,8,3,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+1,20,19,6,1,0,0,0,0,64,0,-1--1--1,,1|(881,440)|
+10,21,Number of cars,898,301,50,11,8,3,0,0,-1,0,0,0
+10,22,Total population per zone,1171,348,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,23,22,21,1,0,0,0,0,0,0,-1--1--1,,1|(1041,350)|
+1,24,1,21,1,0,0,0,0,64,0,-1--1--1,,1|(768,318)|
+10,25,Parking places,968,47,40,20,3,3,0,0,0,0,0,0
+10,26,Parking places under construction,639,40,40,20,3,3,0,0,0,0,0,0
+10,27,Parking places being demolished,1390,42,49,25,3,131,0,0,0,0,0,0
+12,28,48,336,49,10,8,0,3,0,0,-1,0,0,0
+1,29,31,26,4,0,0,22,0,0,0,-1--1--1,,1|(538,49)|
+1,30,31,28,100,0,0,22,0,0,0,-1--1--1,,1|(406,49)|
+11,31,48,472,49,6,8,34,3,0,0,1,0,0,0
+10,32,Allocation parking surface,472,76,58,19,40,3,0,0,-1,0,0,0
+1,33,35,25,4,0,0,22,0,0,0,-1--1--1,,1|(868,41)|
+1,34,35,26,100,0,0,22,0,0,0,-1--1--1,,1|(737,41)|
+11,35,1676,802,41,6,8,34,3,0,0,1,0,0,0
+10,36,Construction and procurement parking places,802,77,66,28,40,3,0,0,-1,0,0,0
+1,37,39,27,4,0,0,22,0,0,0,-1--1--1,,1|(1260,40)|
+1,38,39,25,100,0,0,22,0,0,0,-1--1--1,,1|(1087,40)|
+11,39,3404,1173,40,6,8,34,3,0,0,1,0,0,0
+10,40,Demolition parking places,1173,67,60,19,40,3,0,0,-1,0,0,0
+12,41,48,1665,28,10,8,0,3,0,0,-1,0,0,0
+1,42,44,41,4,0,0,22,0,0,0,-1--1--1,,1|(1596,29)|
+1,43,44,27,100,0,0,22,0,0,0,-1--1--1,,1|(1482,29)|
+11,44,48,1531,29,6,8,34,3,0,0,1,0,0,0
+10,45,Actual decommissioning of parking surface,1531,56,77,19,40,3,0,0,-1,0,0,0
+10,46,Allocation,553,-42,42,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,47,46,32,1,0,0,0,0,64,0,-1--1--1,,1|(532,11)|
+10,48,Parking surface per car,359,-48,49,19,8,3,0,0,-1,0,0,0
+1,49,48,32,1,0,0,0,0,64,0,-1--1--1,,1|(383,13)|
+10,50,Initial parking places,903,167,43,19,8,3,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||128-128-128
+1,51,32,36,1,0,0,0,2,65,0,-1--1--1,|12||0-0-0,1|(623,110)|
+10,52,Construction delay order,883,9,41,19,8,3,0,0,-1,0,0,0
+1,53,52,36,0,0,0,0,0,64,1,-1--1--1,,1|(853,34)|
+10,54,Construction time parkings,724,-13,56,19,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,55,54,36,1,0,0,0,0,64,0,-1--1--1,,1|(737,25)|
+1,56,26,36,0,0,0,0,0,64,1,-1--1--1,,1|(700,53)|
+10,57,Initial parking places under construction,639,79,65,19,8,3,0,0,-1,0,0,0
+10,58,Parking decay,731,-228,45,11,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+10,59,Parking demand,822,219,51,11,8,3,0,0,-1,0,0,0
+1,60,59,82,1,0,0,0,2,65,0,-1--1--1,|12||0-0-0,1|(977,203)|
+1,61,25,40,1,0,0,0,0,64,0,-1--1--1,,1|(1050,77)|
+1,62,40,45,1,0,0,0,2,65,0,-1--1--1,|12||0-0-0,1|(1351,93)|
+10,63,Idle time car,719,278,40,11,8,3,0,0,-1,0,0,0
+1,64,63,59,1,0,0,0,0,0,0,-1--1--1,,1|(779,258)|
+1,65,21,59,1,0,0,0,0,0,0,-1--1--1,,1|(846,232)|
+10,66,Increased parking density rate,385,-240,57,19,8,3,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+1,67,66,48,1,0,0,0,0,0,0,-1--1--1,,1|(353,-155)|
+10,68,Initial parking surface per car,257,-176,48,19,8,3,0,0,-1,0,0,0
+1,69,68,48,1,0,0,0,0,0,0,-1--1--1,,1|(275,-114)|
+12,70,0,1928,129,70,15,8,135,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+Global uncertainty
+12,71,0,1929,159,70,15,8,135,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+Policy
+12,72,0,1928,189,69,14,8,135,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+AV variable
+12,73,0,1928,221,69,18,8,135,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+Subscripted per zone
+12,74,0,1928,256,69,18,8,135,0,4,-1,0,0,0,-1--1--1,255-0-0,|12||0-0-0
+Scale values
+12,75,0,1929,87,33,11,8,7,0,0,-1,0,0,0
+LEGEND
+10,76,Demand for new parking surface,496,220,54,19,8,3,0,0,-1,0,0,0
+1,77,59,76,1,0,0,0,0,0,0,-1--1--1,,1|(660,232)|
+1,78,25,94,1,0,0,0,0,0,0,-1--1--1,,1|(873,126)|
+1,79,48,76,1,0,0,0,0,0,0,-1--1--1,,1|(326,105)|
+10,80,One year,335,259,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,81,80,76,0,0,0,0,0,64,0,-1--1--1,,1|(401,243)|
+10,82,Delayed parking demand,1097,175,53,19,8,3,0,0,0,0,0,0
+1,83,82,40,1,0,0,0,0,128,0,-1--1--1,,1|(1155,126)|
+10,84,Delay order for parking decommissioning,1095,239,75,19,8,3,0,0,-1,0,0,0
+1,85,84,82,0,0,0,0,0,64,1,-1--1--1,,1|(1095,213)|
+10,86,Delay time parking decommissioning,1277,253,60,19,8,3,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+1,87,86,82,1,0,0,0,0,64,0,-1--1--1,,1|(1183,225)|
+10,88,Threshold value for parking decommissioning,1263,-112,80,19,8,3,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+1,89,88,40,1,0,0,0,0,64,0,-1--1--1,,1|(1192,-33)|
+10,90,Time,1220,144,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,91,90,40,0,0,0,0,0,64,0,-1--1--1,,1|(1202,115)|
+10,92,TIME STEP,1316,135,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,93,92,40,0,0,0,0,0,64,0,-1--1--1,,1|(1258,107)|
+10,94,Parking available including under construction,778,150,54,28,8,3,0,0,0,0,0,0
+1,95,94,76,1,0,0,0,0,128,0,-1--1--1,,1|(633,200)|
+1,96,26,94,1,0,0,0,0,128,0,-1--1--1,,1|(667,115)|
+1,97,99,26,4,0,0,22,0,0,0,-1--1--1,,1|(639,-100)|
+1,98,99,25,100,0,0,22,0,0,0,-1--1--1,,1|(968,-100)|
+11,99,4300,788,-100,8,6,33,3,0,0,3,0,0,0
+10,100,Renovation of parking,788,-117,45,19,40,3,0,0,-1,0,0,0
+1,101,58,100,1,0,0,0,0,64,0,-1--1--1,,1|(781,-189)|
+1,102,25,100,1,0,0,0,0,64,0,-1--1--1,,1|(922,-73)|
+10,103,Road lane decommissioning delay,1632,-105,73,19,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,104,103,45,1,0,0,0,0,128,0,-1--1--1,,1|(1611,-46)|
+10,105,Demolishment delay buildings,1531,94,44,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,106,Population unable to drive,357,634,55,26,3,131,0,0,0,0,0,0
+1,107,109,151,4,0,0,22,0,0,0,-1--1--1,,1|(537,629)|
+1,108,109,106,100,0,0,22,0,0,0,-1--1--1,,1|(447,629)|
+11,109,5068,489,629,6,8,34,3,0,0,1,0,0,0
+10,110,Increase in mobility for those unable to drive,489,656,72,19,40,3,0,0,-1,0,0,0
+10,111,Initial population unable to drive,354,683,53,19,8,3,0,0,-1,0,0,0
+1,112,111,106,0,0,0,0,0,64,1,-1--1--1,,1|(355,669)|
+10,113,Fraction adult unable to drive,452,808,47,19,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,114,113,111,1,0,0,0,0,64,0,-1--1--1,,1|(382,767)|
+10,115,Fraction teen,495,447,51,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,116,Fraction elderly,495,447,58,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,117,Fraction adult,495,447,53,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,118,106,121,1,0,0,0,0,128,0,-1--1--1,,1|(424,588)|
+1,119,16,110,1,0,0,0,0,128,0,-1--1--1,,1|(526,601)|
+1,120,106,110,1,0,0,0,0,64,0,-1--1--1,,1|(407,673)|
+10,121,Fraction population unable to drive,454,544,62,19,8,3,0,0,0,0,0,0
+10,122,Total population in GCA,286,573,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,123,122,121,1,0,0,0,0,128,0,-1--1--1,,1|(388,520)|
+1,124,121,11,1,0,0,0,0,128,0,-1--1--1,,1|(440,471)|
+10,125,Initial parking places including rural areas,1017,110,65,19,8,3,0,0,0,0,0,0
+1,126,50,125,1,0,0,0,0,64,0,-1--1--1,,1|(936,128)|
+1,127,21,125,1,0,0,0,0,64,0,-1--1--1,,1|(989,248)|
+1,128,125,25,0,0,0,0,0,64,1,-1--1--1,,1|(997,84)|
+1,129,18,63,1,0,0,0,0,128,0,-1--1--1,,1|(650,286)|
+10,130,Initial idle time car,628,335,57,11,8,3,0,0,-1,0,0,0
+1,131,130,63,1,0,0,0,0,64,0,-1--1--1,,1|(675,314)|
+10,132,Carsharing population,1125,578,40,20,3,3,0,0,0,0,0,0
+1,133,134,132,4,0,0,22,0,0,0,-1--1--1,,1|(1049,577)|
+11,134,3148,1008,577,6,8,34,3,0,0,1,0,0,0
+10,135,Increase in carsharing population,1008,604,68,19,40,3,0,0,-1,0,0,0
+10,136,Initial carsharing population,1138,622,52,19,8,3,0,0,-1,0,0,0
+1,137,136,132,0,0,0,0,0,64,1,-1--1--1,,1|(1135,606)|
+10,138,Initial fraction car sharing population,1177,696,66,19,8,3,0,0,-1,0,0,0
+1,139,138,136,0,0,0,0,0,64,0,-1--1--1,,1|(1160,665)|
+10,140,Total population in GCA,1276,551,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,141,140,136,1,0,0,0,0,64,0,-1--1--1,,1|(1232,601)|
+1,142,19,135,1,0,0,0,0,128,0,-1--1--1,,1|(999,535)|
+10,143,Fraction potential carsharing population,1162,469,68,19,8,3,0,0,0,0,0,0
+1,144,140,143,1,0,0,0,0,128,0,-1--1--1,,1|(1226,467)|
+1,145,143,6,1,0,0,0,0,128,0,-1--1--1,,1|(941,406)|
+10,146,Potential carsharing population,898,577,40,20,3,3,0,0,0,0,0,0
+1,147,134,146,100,0,0,22,0,0,0,-1--1--1,,1|(970,577)|
+1,148,140,146,0,0,0,0,0,64,1,-1--1--1,,1|(1085,563)|
+1,149,146,143,1,0,0,0,0,64,0,-1--1--1,,1|(1000,501)|
+1,150,146,135,1,0,0,0,0,64,0,-1--1--1,,1|(928,604)|
+10,151,Population able to drive,619,632,40,20,3,3,0,0,0,0,0,0
+10,152,Initial population able to drive,625,671,53,19,8,3,0,0,-1,0,0,0
+1,153,152,151,0,0,0,0,0,64,1,-1--1--1,,1|(629,652)|
+1,154,113,152,1,0,0,0,0,64,0,-1--1--1,,1|(561,770)|
+10,155,Fraction elderly unable to drive,475,860,50,19,8,3,0,4,0,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,156,155,111,1,0,0,0,0,128,0,-1--1--1,,1|(337,824)|
+1,157,155,152,1,0,0,0,0,128,0,-1--1--1,,1|(620,757)|
+12,158,0,683,958,108,34,8,7,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
+Assumption: All teens, 10% adults, 50% elderly unable to drive
+10,159,Penetration rate AV,779,719,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,160,Penetration rate AV,182,263,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,161,160,48,1,0,0,0,0,128,0,-1--1--1,,1|(206,61)|
+1,162,160,63,1,0,0,0,0,128,0,-1--1--1,,1|(393,304)|
+1,163,160,11,1,0,0,0,0,128,0,-1--1--1,,1|(281,366)|
+1,164,159,6,1,0,0,0,0,128,0,-1--1--1,,1|(825,602)|
+1,165,159,135,1,0,0,0,0,128,0,-1--1--1,,1|(883,707)|
+1,166,159,110,1,0,0,0,0,128,0,-1--1--1,,1|(658,727)|
+10,167,"2030, fast adoption",809,440,55,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,168,"2030, fast adoption",495,447,55,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,169,"2030, fast adoption",359,-10,55,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,170,"2030, fast adoption",719,308,55,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,171,"2030, fast adoption",489,694,55,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,172,"2030, fast adoption",1008,642,55,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,173,Fraction carsharing population,1032,732,61,19,8,3,0,0,-1,0,0,0
+1,174,132,173,1,0,0,0,0,0,0,-1--1--1,,1|(1059,642)|
+1,175,140,173,1,0,0,0,0,128,0,-1--1--1,,1|(1276,738)|
+10,176,Change in cars per person,676,498,60,19,8,3,0,0,-1,0,0,0
+1,177,1,176,1,0,0,0,0,0,0,-1--1--1,,1|(714,430)|
+1,178,14,176,1,0,0,0,0,0,0,-1--1--1,,1|(646,480)|
+1,179,100,36,1,0,0,0,2,65,0,-1--1--1,|12||0-0-0,1|(819,-35)|
+1,180,57,26,0,0,0,0,0,64,1,-1--1--1,,1|(639,60)|
+10,181,Parking demand per district type,1416,315,52,19,8,3,0,0,0,0,0,0
+10,182,District of zone,1495,402,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,183,182,181,1,0,0,0,0,64,0,-1--1--1,,1|(1498,350)|
+1,184,59,181,1,0,0,0,0,64,0,-1--1--1,,1|(1103,284)|
+10,185,Parking places per district type,1590,252,65,19,8,3,0,0,0,0,0,0
+1,186,25,185,1,0,0,0,0,64,0,-1--1--1,,1|(1240,176)|
+1,187,182,185,1,0,0,0,0,128,0,-1--1--1,,1|(1565,340)|
+10,188,Initial population adult,476,728,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,189,188,152,1,0,0,0,0,64,0,-1--1--1,,1|(541,712)|
+10,190,Initial population elderly,468,766,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,191,190,152,1,0,0,0,0,64,0,-1--1--1,,1|(544,732)|
+1,192,190,111,1,0,0,0,0,64,0,-1--1--1,,1|(396,731)|
+10,193,Initial population teen,181,677,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,194,193,111,1,0,0,0,0,64,0,-1--1--1,,1|(257,696)|
+1,195,188,111,1,0,0,0,0,128,0,-1--1--1,,1|(416,713)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Population
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,70,0
+10,1,Initial population,1464,549,52,11,8,3,0,4,-1,0,0,0,128-128-128,255-160-0,|12||128-128-128
+10,2,Population child,1645,-166,40,20,3,3,0,0,0,0,0,0
+10,3,Population teen,1864,-160,40,20,3,3,0,0,0,0,0,0
+10,4,Population adult,2085,-163,40,20,3,3,0,0,0,0,0,0
+10,5,Population elderly,2276,-164,40,20,3,3,0,0,0,0,0,0
+12,6,48,1376,-175,10,8,0,3,0,0,-1,0,0,0
+1,7,9,2,4,0,0,22,0,0,0,-1--1--1,,1|(1559,-172)|
+1,8,9,6,100,0,0,22,0,0,0,-1--1--1,,1|(1443,-172)|
+11,9,48,1507,-172,6,8,34,3,0,0,1,0,0,0
+10,10,Births,1507,-153,20,11,40,3,0,0,-1,0,0,0
+1,11,13,3,4,0,0,22,0,0,0,-1--1--1,,1|(1792,-163)|
+1,12,13,2,100,0,0,22,0,0,0,-1--1--1,,1|(1716,-163)|
+11,13,2796,1754,-163,6,8,34,3,0,0,1,0,0,0
+10,14,Aging childs,1754,-144,39,11,40,3,0,0,-1,0,0,0
+1,15,17,4,4,0,0,22,0,0,0,-1--1--1,,1|(2012,-162)|
+1,16,17,3,100,0,0,22,0,0,0,-1--1--1,,1|(1936,-162)|
+11,17,1196,1974,-162,6,8,34,3,0,0,1,0,0,0
+10,18,Aging teens,1974,-143,37,11,40,3,0,0,-1,0,0,0
+1,19,21,5,4,0,0,22,0,0,0,-1--1--1,,1|(2211,-164)|
+1,20,21,4,100,0,0,22,0,0,0,-1--1--1,,1|(2149,-164)|
+11,21,1260,2180,-164,6,8,34,3,0,0,1,0,0,0
+10,22,Aging adults,2180,-145,39,11,40,3,0,0,-1,0,0,0
+12,23,48,2449,-166,10,8,0,3,0,0,-1,0,0,0
+1,24,26,23,4,0,0,22,0,0,0,-1--1--1,,1|(2411,-166)|
+1,25,26,5,100,0,0,22,0,0,0,-1--1--1,,1|(2343,-166)|
+11,26,48,2377,-166,6,8,34,3,0,0,1,0,0,0
+10,27,Deaths,2377,-147,23,11,40,3,0,0,-1,0,0,0
+1,28,2,14,1,0,0,0,0,64,0,-1--1--1,,1|(1683,-137)|
+1,29,3,18,1,0,0,0,0,64,0,-1--1--1,,1|(1908,-146)|
+1,30,4,22,0,0,0,0,0,64,0,-1--1--1,,1|(2126,-156)|
+12,31,48,1646,-32,10,8,0,3,0,0,-1,0,0,0
+1,32,34,31,4,0,0,22,0,0,0,-1--1--1,,1|(1648,-60)|
+1,33,34,2,100,0,0,22,0,0,0,-1--1--1,,1|(1648,-119)|
+11,34,48,1648,-86,8,6,33,3,0,0,4,0,0,0
+10,35,Deaths child,1695,-86,39,11,40,3,0,0,-1,0,0,0
+12,36,48,1862,-29,10,8,0,3,0,0,-1,0,0,0
+1,37,39,36,4,0,0,22,0,0,0,-1--1--1,,1|(1862,-60)|
+1,38,39,3,100,0,0,22,0,0,0,-1--1--1,,1|(1862,-118)|
+11,39,48,1862,-89,8,6,33,3,0,0,4,0,0,0
+10,40,Deaths teen,1908,-89,38,11,40,3,0,0,-1,0,0,0
+12,41,48,2093,-15,10,8,0,3,0,0,-1,0,0,0
+1,42,44,41,4,0,0,22,0,0,0,-1--1--1,,1|(2093,-50)|
+1,43,44,4,100,0,0,22,0,0,0,-1--1--1,,1|(2093,-116)|
+11,44,48,2093,-83,8,6,33,3,0,0,4,0,0,0
+10,45,Deaths adult,2141,-83,40,11,40,3,0,0,-1,0,0,0
+1,46,2,35,1,0,0,0,0,64,0,-1--1--1,,1|(1667,-125)|
+1,47,5,27,1,0,0,0,0,64,0,-1--1--1,,1|(2324,-141)|
+1,48,3,40,1,0,0,0,0,64,0,-1--1--1,,1|(1895,-129)|
+1,49,4,45,1,0,0,0,0,64,0,-1--1--1,,1|(2103,-123)|
+1,50,52,2,4,0,0,22,0,0,0,-1--1--1,,3|(1679,-344)|(1679,-345)|(1679,-266)|
+1,51,52,2,100,0,0,22,0,0,0,-1--1--1,,1|(1620,-261)|
+11,52,3788,1620,-344,6,8,34,3,0,0,3,0,0,0
+10,53,Migration child,1620,-363,47,11,40,3,0,0,-1,0,0,0
+1,54,56,3,4,0,0,22,0,0,0,-1--1--1,,3|(1898,-347)|(1898,-341)|(1898,-261)|
+1,55,56,3,100,0,0,22,0,0,0,-1--1--1,,1|(1841,-260)|
+11,56,6108,1841,-347,6,8,34,3,0,0,3,0,0,0
+10,57,Migration teen,1841,-366,46,11,40,3,0,0,-1,0,0,0
+1,58,60,4,4,0,0,22,0,0,0,-1--1--1,,3|(2060,-342)|(2110,-342)|(2110,-263)|
+1,59,60,4,100,0,0,22,0,0,0,-1--1--1,,1|(2060,-264)|
+11,60,6124,2060,-350,7,6,34,131,0,0,3,0,0,0
+10,61,Migration adult,2060,-367,48,11,40,3,0,0,-1,0,0,0
+1,62,64,5,4,0,0,22,0,0,0,-1--1--1,,3|(2299,-350)|(2299,-346)|(2299,-265)|
+1,63,64,5,100,0,0,22,0,0,0,-1--1--1,,1|(2254,-263)|
+11,64,6140,2254,-350,6,8,34,3,0,0,3,0,0,0
+10,65,Migration elderly,2254,-369,53,11,40,3,0,0,-1,0,0,0
+10,66,Available houses,2079,-900,53,11,8,3,0,0,-1,0,0,0
+10,67,Time in adult,2280,16,48,19,8,3,0,0,-1,0,0,0
+10,68,average time in child,1806,-52,48,19,8,3,0,0,-1,0,0,0
+10,69,Life expectancy at age 64,2436,-70,73,19,8,3,0,0,-1,0,0,0
+10,70,average time in teen,2033,-54,48,19,8,3,0,0,-1,0,0,0
+10,71,Fertility,1379,-263,38,11,8,3,0,0,-1,0,0,0
+10,72,Death rate adult,2186,-29,50,11,8,3,0,0,-1,0,0,0
+10,73,Death rate child,1724,-12,50,11,8,3,0,0,-1,0,0,0
+10,74,Death rate teen,1944,-11,48,11,8,3,0,0,-1,0,0,0
+1,75,71,10,1,0,0,0,0,64,0,-1--1--1,,1|(1414,-200)|
+10,76,Total population per zone,1346,146,52,19,8,3,0,0,-1,0,0,0
+1,77,68,35,0,0,0,0,0,64,0,-1--1--1,,1|(1750,-69)|
+1,78,73,35,1,0,0,0,0,64,0,-1--1--1,,1|(1697,-48)|
+1,79,68,14,1,0,0,0,0,64,0,-1--1--1,,1|(1793,-102)|
+1,80,70,18,1,0,0,0,0,64,0,-1--1--1,,1|(2016,-108)|
+1,81,70,40,1,0,0,0,0,64,0,-1--1--1,,1|(1968,-64)|
+1,82,74,40,1,0,0,0,0,64,0,-1--1--1,,1|(1912,-47)|
+1,83,67,22,1,0,0,0,0,64,0,-1--1--1,,1|(2241,-81)|
+1,84,67,45,1,0,0,0,0,64,0,-1--1--1,,1|(2222,-50)|
+1,85,72,45,1,0,0,0,0,64,0,-1--1--1,,1|(2171,-58)|
+1,86,69,27,1,0,0,0,0,64,0,-1--1--1,,1|(2428,-113)|
+10,87,Moving adults,2187,-282,45,11,8,3,0,0,-1,0,0,0
+10,88,Moving childs,1750,-268,44,11,8,3,0,0,-1,0,0,0
+10,89,Moving elderly,2398,-284,47,11,8,3,0,0,-1,0,0,0
+10,90,Moving teens,1982,-289,43,11,8,3,0,0,-1,0,0,0
+10,91,Fraction adult,2280,-616,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,92,Fraction child,1758,-603,52,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,93,Fraction elderly,2502,-723,58,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,94,Fraction teen,2031,-602,51,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,95,Average time in house,2008,-204,50,19,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,96,90,57,1,0,0,0,0,64,0,-1--1--1,,1|(1920,-341)|
+1,97,87,61,1,0,0,0,0,64,0,-1--1--1,,1|(2131,-335)|
+1,98,89,65,1,0,0,0,0,64,0,-1--1--1,,1|(2332,-337)|
+1,99,88,53,1,0,0,0,0,64,0,-1--1--1,,1|(1682,-302)|
+1,100,3,90,1,0,0,0,0,64,0,-1--1--1,,1|(1928,-213)|
+1,101,5,89,1,0,0,0,0,64,0,-1--1--1,,1|(2357,-214)|
+1,102,2,88,1,0,0,0,0,64,0,-1--1--1,,1|(1710,-208)|
+1,103,4,87,1,0,0,0,0,64,0,-1--1--1,,1|(2152,-222)|
+1,104,95,88,1,0,0,0,0,128,0,-1--1--1,,1|(1879,-225)|
+1,105,95,90,1,0,0,0,0,128,0,-1--1--1,,1|(2004,-247)|
+1,106,95,87,1,0,0,0,0,128,0,-1--1--1,,1|(2089,-258)|
+1,107,95,89,1,0,0,0,0,128,0,-1--1--1,,1|(2198,-226)|
+10,108,Attractiveness to live in zone,1203,-892,54,19,8,3,0,0,-1,0,0,0
+10,109,Total attractiveness to live in city,1041,-477,61,19,8,3,0,0,-1,0,0,0
+1,110,108,109,1,0,0,0,0,0,0,-1--1--1,,1|(1099,-694)|
+10,111,Population adult,1132,62,60,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,112,Population child,1290,47,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,113,Population elderly,1116,98,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,114,Population teen,1164,26,58,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,115,112,76,1,0,0,0,0,128,0,-1--1--1,,1|(1310,66)|
+1,116,114,76,1,0,0,0,0,128,0,-1--1--1,,1|(1256,62)|
+1,117,111,76,1,0,0,0,0,128,0,-1--1--1,,1|(1227,116)|
+1,118,113,76,1,0,0,0,0,128,0,-1--1--1,,1|(1202,129)|
+10,119,Accessibility to jobs,1616,-833,48,19,8,3,0,0,-1,0,0,0
+10,120,Total population in GCA,1472,44,52,19,8,3,0,0,0,0,0,0
+1,121,76,120,1,0,0,0,0,128,0,-1--1--1,,1|(1393,87)|
+12,122,0,2844,-627,70,15,8,135,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+Global uncertainty
+12,123,0,2845,-597,70,15,8,135,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+Policy
+12,124,0,2844,-567,69,14,8,135,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+AV variable
+12,125,0,2844,-535,69,18,8,135,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+Subscripted per zone
+12,126,0,2844,-500,69,18,8,135,0,4,-1,0,0,0,-1--1--1,255-0-0,|12||0-0-0
+Scale values
+12,127,0,2845,-669,33,11,8,7,0,0,-1,0,0,0
+LEGEND
+10,128,Entering population,249,336,34,19,8,3,0,0,-1,0,0,0
+10,129,Average household size,2353,-830,51,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,130,Available places,2102,-740,51,11,8,3,0,0,0,0,0,0
+1,131,66,130,1,0,0,0,0,128,0,-1--1--1,,1|(2103,-832)|
+1,132,129,130,1,0,0,0,0,128,0,-1--1--1,,1|(2220,-812)|
+10,133,One year,2080,-979,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,134,Available places child,1771,-663,52,19,8,3,0,0,-1,0,0,0
+10,135,Available places teen,2016,-662,52,19,8,3,0,0,-1,0,0,0
+10,136,Available places adult,2161,-654,52,19,8,3,0,0,-1,0,0,0
+10,137,Available places elderly,2368,-676,52,19,8,3,0,0,-1,0,0,0
+1,138,130,137,1,0,0,0,0,128,0,-1--1--1,,1|(2227,-740)|
+1,139,130,136,0,0,0,0,0,128,0,-1--1--1,,1|(2124,-706)|
+1,140,130,135,0,0,0,0,0,128,0,-1--1--1,,1|(2068,-709)|
+1,141,130,134,1,0,0,0,0,128,0,-1--1--1,,1|(1939,-723)|
+1,142,92,134,0,0,0,0,0,128,0,-1--1--1,,1|(1761,-623)|
+1,143,94,135,0,0,0,0,0,128,0,-1--1--1,,1|(2026,-622)|
+1,144,91,136,0,0,0,0,0,128,0,-1--1--1,,1|(2236,-631)|
+1,145,93,137,0,0,0,0,0,128,0,-1--1--1,,1|(2452,-705)|
+10,146,Total moving childs,1741,-433,42,19,8,3,0,0,0,0,0,0
+10,147,Total moving teens,1966,-427,59,11,8,3,0,0,0,0,0,0
+10,148,Total moving adults,2162,-414,42,19,8,3,0,0,0,0,0,0
+10,149,Total moving elderly,2436,-398,42,19,8,3,0,0,0,0,0,0
+1,150,88,146,1,0,0,0,0,64,0,-1--1--1,,1|(1757,-342)|
+1,151,90,147,1,0,0,0,0,64,0,-1--1--1,,1|(1990,-352)|
+1,152,87,148,1,0,0,0,0,64,0,-1--1--1,,1|(2197,-344)|
+1,153,89,149,1,0,0,0,0,64,0,-1--1--1,,1|(2433,-331)|
+10,154,Households,2184,-1094,47,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,155,154,66,1,0,0,0,0,64,0,-1--1--1,,1|(2204,-994)|
+1,156,67,40,1,0,0,0,0,64,0,-1--1--1,,1|(2077,7)|
+1,157,70,45,1,0,0,0,0,64,0,-1--1--1,,1|(2088,-60)|
+10,158,Housing shortage,2074,-1054,54,11,8,3,0,0,0,0,0,0
+1,159,133,158,1,0,0,0,0,128,0,-1--1--1,,1|(2081,-1016)|
+1,160,154,158,1,0,0,0,0,128,0,-1--1--1,,1|(2130,-1089)|
+10,161,SOM migration children,726,-326,50,19,8,3,0,0,0,0,0,0
+10,162,Initial children fraction,1105,587,44,19,8,3,0,0,0,0,0,0
+10,163,Initial teen fraction,1105,621,57,11,8,3,0,0,0,0,0,0
+10,164,Initial adult fraction,1108,649,59,11,8,3,0,0,0,0,0,0
+10,165,Initial elderly fraction,1096,679,41,19,8,3,0,0,0,0,0,0
+10,166,Entering children,1631,-565,52,11,8,3,0,0,0,0,0,0
+1,167,134,166,0,0,0,0,0,128,0,-1--1--1,,1|(1700,-614)|
+1,168,146,166,1,0,0,0,0,128,0,-1--1--1,,1|(1708,-502)|
+10,169,moving priority vector,1423,-604,48,19,8,3,0,0,-1,0,0,0
+10,170,moving priority vector ptype,1339,-505,48,19,8,3,0,0,0,0,0,0
+10,171,moving priority vector pwidth,1442,-503,48,19,8,3,0,0,0,0,0,0
+10,172,moving priority vector pextra,1530,-520,48,19,8,3,0,0,0,0,0,0
+1,173,170,169,1,0,0,0,0,128,0,-1--1--1,,1|(1363,-556)|
+1,174,171,169,1,0,0,0,0,128,0,-1--1--1,,1|(1418,-550)|
+1,175,172,169,1,0,0,0,0,128,0,-1--1--1,,1|(1492,-569)|
+1,176,169,166,1,0,0,0,0,128,0,-1--1--1,,1|(1524,-616)|
+10,177,SUM available places,1916,-782,48,19,8,3,0,0,0,0,0,0
+1,178,73,14,1,0,0,0,0,128,0,-1--1--1,,1|(1756,-71)|
+1,179,74,18,1,0,0,0,0,64,0,-1--1--1,,1|(1970,-69)|
+1,180,72,22,1,0,0,0,0,64,0,-1--1--1,,1|(2193,-82)|
+10,181,Entering teens,1876,-559,44,11,8,3,0,0,0,0,0,0
+10,182,Entering adults,2100,-531,46,11,8,3,0,0,0,0,0,0
+10,183,Entering old people,2466,-532,39,19,8,3,0,0,0,0,0,0
+1,184,135,181,0,0,0,0,0,64,0,-1--1--1,,1|(1946,-611)|
+1,185,147,181,1,0,0,0,0,64,0,-1--1--1,,1|(1932,-493)|
+1,186,136,182,1,0,0,0,0,64,0,-1--1--1,,1|(2111,-609)|
+1,187,148,182,1,0,0,0,0,64,0,-1--1--1,,1|(2146,-472)|
+1,188,137,183,1,0,0,0,0,64,0,-1--1--1,,1|(2425,-617)|
+1,189,149,183,1,0,0,0,0,64,0,-1--1--1,,1|(2459,-468)|
+1,190,166,53,1,0,0,0,0,128,0,-1--1--1,,1|(1612,-472)|
+1,191,181,57,1,0,0,0,0,128,0,-1--1--1,,1|(1850,-469)|
+1,192,182,61,1,0,0,0,0,128,0,-1--1--1,,1|(2068,-457)|
+1,193,183,65,1,0,0,0,0,128,0,-1--1--1,,1|(2346,-463)|
+1,194,130,177,1,0,0,0,0,64,0,-1--1--1,,1|(2012,-784)|
+10,195,moving priority vector,2609,-542,53,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,196,moving priority vector,2230,-534,53,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,197,moving priority vector,1757,-533,53,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,198,195,183,1,0,0,0,0,128,0,-1--1--1,,1|(2551,-519)|
+1,199,196,182,1,0,0,0,0,128,0,-1--1--1,,1|(2161,-537)|
+1,200,197,181,1,0,0,0,0,128,0,-1--1--1,,1|(1808,-565)|
+10,201,Migration child,934,-314,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,202,Migration adult,900,-186,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,203,Migration teen,923,-249,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,204,Migration elderly,914,-110,36,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,205,201,161,1,0,0,0,0,128,0,-1--1--1,,1|(832,-351)|
+10,206,SOM migration adults,720,-181,50,19,8,3,0,0,0,0,0,0
+10,207,SOM migration teens,723,-250,50,19,8,3,0,0,0,0,0,0
+10,208,SOM migration elderly,721,-106,50,19,8,3,0,0,0,0,0,0
+1,209,203,207,1,0,0,0,0,128,0,-1--1--1,,1|(824,-273)|
+1,210,202,206,1,0,0,0,0,128,0,-1--1--1,,1|(809,-168)|
+1,211,204,208,1,0,0,0,0,128,0,-1--1--1,,1|(784,-96)|
+10,212,SUM migration,370,-210,49,11,8,3,0,0,0,0,0,0
+1,213,161,212,1,0,0,0,0,128,0,-1--1--1,,1|(531,-295)|
+1,214,207,212,1,0,0,0,0,128,0,-1--1--1,,1|(545,-252)|
+1,215,206,212,1,0,0,0,0,128,0,-1--1--1,,1|(540,-172)|
+1,216,208,212,1,0,0,0,0,128,0,-1--1--1,,1|(505,-139)|
+10,217,Time,2437,12,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,218,217,69,1,0,0,0,0,64,0,-1--1--1,,1|(2440,2)|
+12,219,0,387,-371,107,30,8,7,0,8,-1,0,0,0,-1--1--1,0-0-0,|14||0-0-0
+SOM migration should be 0. Deviating values are due to rounding errors
+10,220,Leaving population,610,339,59,11,8,3,0,0,-1,0,0,0
+10,221,Moving adults,396,357,54,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,222,Moving teens,400,325,52,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,223,Moving childs,405,291,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,224,Moving elderly,398,383,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,225,223,220,1,0,0,0,0,128,0,-1--1--1,,1|(498,292)|
+1,226,222,220,1,0,0,0,0,128,0,-1--1--1,,1|(493,318)|
+1,227,221,220,1,0,0,0,0,128,0,-1--1--1,,1|(491,354)|
+1,228,224,220,1,0,0,0,0,128,0,-1--1--1,,1|(494,373)|
+10,229,Migration adult,348,542,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,230,Migration child,370,446,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,231,Migration elderly,360,494,36,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,232,Migration teen,353,582,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,233,Migrating population,539,473,34,19,8,3,0,0,0,0,0,0
+1,234,230,233,1,0,0,0,0,128,0,-1--1--1,,1|(460,440)|
+1,235,231,233,1,0,0,0,0,128,0,-1--1--1,,1|(440,474)|
+1,236,229,233,1,0,0,0,0,128,0,-1--1--1,,1|(432,516)|
+1,237,232,233,1,0,0,0,0,128,0,-1--1--1,,1|(436,547)|
+10,238,integer type,1287,-561,37,11,8,3,0,0,-1,0,0,0
+1,239,238,169,1,0,0,0,0,64,0,-1--1--1,,1|(1328,-592)|
+1,240,108,169,1,0,0,0,0,64,0,-1--1--1,,1|(1251,-724)|
+10,241,Entering adults,31,365,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,242,Entering children,38,257,31,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,243,Entering teens,39,317,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,244,Entering old people,23,414,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,245,242,128,1,0,0,0,0,128,0,-1--1--1,,1|(164,291)|
+1,246,243,128,1,0,0,0,0,128,0,-1--1--1,,1|(151,318)|
+1,247,241,128,1,0,0,0,0,128,0,-1--1--1,,1|(142,361)|
+1,248,244,128,1,0,0,0,0,128,0,-1--1--1,,1|(131,390)|
+10,249,Buildings,1884,-946,38,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,250,249,66,1,0,0,0,0,64,0,-1--1--1,,1|(1953,-905)|
+1,251,249,158,1,0,0,0,0,128,0,-1--1--1,,1|(1952,-1012)|
+10,252,Population growth,1424,269,57,11,8,3,0,0,0,0,0,0
+1,253,76,252,1,0,0,0,0,64,0,-1--1--1,,1|(1397,210)|
+10,254,Births,1326,312,29,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,255,Deaths,1349,362,32,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,256,254,252,1,0,0,0,0,128,0,-1--1--1,,1|(1362,284)|
+1,257,255,252,1,0,0,0,0,128,0,-1--1--1,,1|(1391,327)|
+10,258,Population delayed,1815,264,60,11,8,3,0,0,0,0,0,0
+10,259,Delayed initial population,1583,247,45,19,8,3,0,0,-1,0,0,0
+1,260,259,258,0,0,0,0,0,64,1,-1--1--1,,1|(1684,254)|
+10,261,Forecast Time Forecasting Policy,1764,393,59,19,8,3,0,0,-1,0,0,0
+1,262,261,258,1,0,0,0,0,64,0,-1--1--1,,1|(1803,334)|
+10,263,Forecasting Delay Order,1922,315,58,19,8,3,0,0,-1,0,0,0
+1,264,263,258,0,0,0,0,0,64,1,-1--1--1,,1|(1866,288)|
+1,265,76,258,1,0,0,0,0,64,0,-1--1--1,,1|(1594,121)|
+10,266,Forecast initial population,1583,378,46,19,8,3,0,0,-1,0,0,0
+1,267,266,259,1,0,0,0,0,64,0,-1--1--1,,1|(1626,305)|
+1,268,76,259,1,0,0,0,0,64,0,-1--1--1,,1|(1482,189)|
+1,269,261,266,1,0,0,0,0,64,0,-1--1--1,,1|(1681,418)|
+1,270,1,266,1,0,0,0,0,64,0,-1--1--1,,1|(1525,482)|
+10,271,One year,1586,475,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,272,271,266,1,0,0,0,0,64,0,-1--1--1,,1|(1590,437)|
+1,273,252,266,1,0,0,0,0,64,0,-1--1--1,,1|(1479,333)|
+10,274,Expected population,1755,100,34,19,8,3,0,0,0,0,0,0
+1,275,258,274,1,0,0,0,0,64,0,-1--1--1,,1|(1810,181)|
+1,276,76,274,1,0,0,0,0,64,0,-1--1--1,,1|(1562,83)|
+10,277,Travel time,1760,-785,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,278,277,119,1,0,0,0,0,0,0,-1--1--1,,1|(1701,-791)|
+10,279,"Over-vacancy",1689,-968,45,11,8,3,0,0,-1,0,0,0
+10,280,Initial vacancy rate city,1774,-1094,50,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,281,280,279,1,0,0,0,0,128,0,-1--1--1,,1|(1712,-1040)|
+10,282,Vacancy rate,1821,-1036,42,11,8,3,0,0,0,0,0,0
+1,283,282,279,1,0,0,0,0,64,0,-1--1--1,,1|(1760,-985)|
+1,284,249,282,1,0,0,0,0,128,0,-1--1--1,,1|(1851,-991)|
+10,285,Population density,1162,274,57,11,8,3,0,0,0,0,0,0
+1,286,76,285,1,0,0,0,0,128,0,-1--1--1,,1|(1262,237)|
+10,287,Total zone surface,1045,406,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,288,287,285,1,0,0,0,0,64,0,-1--1--1,,1|(1109,351)|
+10,289,Average fraction road,910,-914,53,19,8,3,0,0,0,0,0,0
+10,290,Average fraction other land,1540,-1170,53,19,8,3,0,0,0,0,0,0
+10,291,Average accessibility to jobs,1506,-726,62,19,8,3,0,0,0,0,0,0
+10,292,"Average over-vacancy",1567,-991,44,19,8,3,0,0,0,0,0,0
+1,293,119,291,1,0,0,0,0,128,0,-1--1--1,,1|(1550,-756)|
+1,294,279,292,1,0,0,0,0,128,0,-1--1--1,,1|(1644,-965)|
+10,295,Factor Fraction road,1046,-893,50,19,8,3,0,0,0,0,0,0
+10,296,Factor Fraction other land,1384,-1071,50,19,8,3,0,0,0,0,0,0
+10,297,Factor Accessibility to jobs,1352,-817,64,19,8,3,0,0,0,0,0,0
+10,298,"Factor Over-vacancy",1439,-898,46,19,8,3,0,0,0,0,0,0
+1,299,289,295,1,0,0,0,0,128,0,-1--1--1,,1|(974,-909)|
+1,300,290,296,1,0,0,0,0,128,0,-1--1--1,,1|(1459,-1101)|
+1,301,119,297,1,0,0,0,0,128,0,-1--1--1,,1|(1497,-813)|
+1,302,291,297,1,0,0,0,0,128,0,-1--1--1,,1|(1425,-756)|
+1,303,279,298,1,0,0,0,0,128,0,-1--1--1,,1|(1568,-915)|
+1,304,292,298,1,0,0,0,0,128,0,-1--1--1,,1|(1473,-941)|
+1,305,297,108,1,0,0,0,0,128,0,-1--1--1,,1|(1263,-883)|
+12,306,0,588,-1535,162,40,8,7,0,12,-1,0,0,0,-1--1--1,255-255-128,|18||0-0-0
+What's the difference between accessibility to jobs and number of jobs within accessible region?
+1,307,154,282,1,0,0,0,0,128,0,-1--1--1,,1|(2038,-1138)|
+1,308,133,66,1,0,0,0,0,128,0,-1--1--1,,1|(2088,-933)|
+10,309,Population adult,1267,-348,60,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,310,309,71,1,0,0,0,0,128,0,-1--1--1,,1|(1336,-324)|
+10,311,Fertility rate,1246,-244,53,11,8,3,0,0,-1,0,0,0
+1,312,311,71,1,0,0,0,0,64,0,-1--1--1,,1|(1322,-239)|
+10,313,Time,1121,-289,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,314,313,311,1,0,0,0,0,64,0,-1--1--1,,1|(1162,-259)|
+10,315,Time in adult,1518,-236,53,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,316,315,10,1,0,0,0,0,128,0,-1--1--1,,1|(1517,-199)|
+10,317,Coefficient Accessibility to jobs,1309,-766,64,19,8,3,0,4,0,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,318,317,108,1,0,0,0,0,128,0,-1--1--1,,1|(1219,-861)|
+12,319,0,1811,-1501,136,40,8,7,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
+AV's could compensate for the location downsides (longer distances)
+10,320,"Coefficient over-vacancy",1390,-962,68,19,8,3,0,4,0,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+10,321,Exponent travel time,1683,-742,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,322,321,119,1,0,0,0,0,64,0,-1--1--1,,1|(1633,-763)|
+10,323,Proximity to nature,1166,-1275,59,11,8,3,0,0,0,0,0,0
+10,324,Proximity to the city,801,-1202,50,19,8,3,0,0,0,0,0,0
+10,325,Coefficient Fraction road,1016,-801,44,19,8,3,0,4,0,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+10,326,Coefficient Proximity to nature,1054,-1059,60,19,8,3,0,4,0,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+10,327,Coefficient Proximity to the city,887,-973,67,19,8,3,0,4,0,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+10,328,Coefficient Fraction other land,1242,-1088,63,19,8,3,0,4,0,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,329,320,108,1,0,0,0,0,64,0,-1--1--1,,1|(1299,-942)|
+1,330,296,108,1,0,0,0,0,64,0,-1--1--1,,1|(1285,-992)|
+1,331,295,108,1,0,0,0,0,64,0,-1--1--1,,1|(1112,-905)|
+1,332,298,108,1,0,0,0,0,64,0,-1--1--1,,1|(1332,-911)|
+1,333,325,108,1,0,0,0,0,128,0,-1--1--1,,1|(1101,-882)|
+1,334,328,108,1,0,0,0,0,128,0,-1--1--1,,1|(1213,-963)|
+1,335,327,108,1,0,0,0,0,128,0,-1--1--1,,1|(1062,-946)|
+1,336,326,108,1,0,0,0,0,128,0,-1--1--1,,1|(1151,-975)|
+10,337,Average proximity to the city,670,-1149,59,19,8,3,0,0,0,0,0,0
+10,338,Average proximity to nature,977,-1257,59,19,8,3,0,0,0,0,0,0
+1,339,324,337,1,0,0,0,0,128,0,-1--1--1,,1|(707,-1183)|
+10,340,Factor Proximity to the city,882,-1062,62,19,8,3,0,0,0,0,0,0
+10,341,Factor Proximity to nature,1108,-1178,54,19,8,3,0,0,0,0,0,0
+1,342,338,341,1,0,0,0,0,128,0,-1--1--1,,1|(1027,-1204)|
+1,343,323,341,1,0,0,0,0,128,0,-1--1--1,,1|(1158,-1229)|
+1,344,337,340,1,0,0,0,0,128,0,-1--1--1,,1|(756,-1096)|
+1,345,324,340,1,0,0,0,0,128,0,-1--1--1,,1|(861,-1143)|
+1,346,340,108,1,0,0,0,0,128,0,-1--1--1,,1|(1076,-995)|
+1,347,341,108,1,0,0,0,0,128,0,-1--1--1,,1|(1187,-962)|
+1,348,323,338,1,0,0,0,0,64,0,-1--1--1,,1|(1074,-1292)|
+10,349,District of zone,875,-1367,48,11,8,3,0,4,0,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+1,350,349,324,1,0,0,0,0,128,0,-1--1--1,,1|(800,-1308)|
+1,351,349,323,1,0,0,0,0,128,0,-1--1--1,,1|(1101,-1360)|
+10,352,Fraction per land use category,852,-843,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,353,352,289,1,0,0,0,0,64,0,-1--1--1,,1|(852,-879)|
+10,354,Fraction per land use category,1385,-1186,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,355,354,290,1,0,0,0,0,64,0,-1--1--1,,1|(1465,-1206)|
+1,356,352,295,1,0,0,0,0,128,0,-1--1--1,,1|(955,-854)|
+1,357,354,296,1,0,0,0,0,128,0,-1--1--1,,1|(1355,-1142)|
+10,358,Average attractiveness per zone,778,-542,72,19,8,3,0,0,0,0,0,0
+1,359,109,358,1,0,0,0,0,128,0,-1--1--1,,1|(900,-482)|
+10,360,Migration rate,1383,429,45,11,8,3,0,4,0,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,361,360,252,1,0,0,0,0,128,0,-1--1--1,,1|(1430,354)|
+10,362,Population per district type,973,231,47,19,8,3,0,0,0,0,0,0
+10,363,District of zone,772,273,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,364,363,362,1,0,0,0,0,128,0,-1--1--1,,1|(861,210)|
+1,365,76,362,1,0,0,0,0,64,0,-1--1--1,,1|(1160,202)|
+10,366,Population density per district type,893,353,58,19,8,3,0,0,0,0,0,0
+1,367,362,366,1,0,0,0,0,128,0,-1--1--1,,1|(963,289)|
+10,368,Surface per district type,821,462,58,19,8,3,0,0,0,0,0,0
+1,369,363,368,1,0,0,0,0,128,0,-1--1--1,,1|(775,373)|
+1,370,287,368,1,0,0,0,0,128,0,-1--1--1,,1|(960,455)|
+1,371,368,366,1,0,0,0,0,64,0,-1--1--1,,1|(872,412)|
+10,372,km to m ratio,821,500,52,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,373,m2 to km2 ratio,867,577,51,11,8,3,0,0,0,0,0,0
+1,374,373,368,1,0,0,0,0,128,0,-1--1--1,,1|(832,547)|
+10,375,Population per district,705,125,47,19,8,3,0,0,0,0,0,0
+1,376,76,375,1,0,0,0,0,64,0,-1--1--1,,1|(1014,158)|
+1,377,363,375,1,0,0,0,0,128,0,-1--1--1,,1|(721,209)|
+10,378,Attractiveness to live in district type,874,-674,66,19,8,3,0,0,0,0,0,0
+1,379,108,378,1,0,0,0,0,64,0,-1--1--1,,1|(1061,-758)|
+10,380,Number of zones per district type,665,-611,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,381,380,378,0,0,0,0,0,64,0,-1--1--1,,1|(760,-640)|
+10,382,District of zone,754,-742,57,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,383,382,378,1,0,0,0,0,128,0,-1--1--1,,1|(797,-699)|
+10,384,Accessibility to jobs per district type,565,-836,64,19,8,3,0,0,0,0,0,0
+10,385,Number of zones per district type,534,-731,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,386,385,384,0,0,0,0,0,64,0,-1--1--1,,1|(546,-776)|
+10,387,Accessibility to jobs,671,-897,53,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,388,387,384,0,0,0,0,0,128,0,-1--1--1,,1|(624,-869)|
+1,389,382,384,0,0,0,0,0,128,0,-1--1--1,,1|(673,-781)|
+10,390,Total jobs in GCA,1728,-874,58,11,8,3,0,0,-1,0,0,0
+1,391,390,119,0,0,0,0,0,64,0,-1--1--1,,1|(1687,-858)|
+1,392,249,390,1,0,0,0,0,128,0,-1--1--1,,1|(1802,-889)|
+10,393,Initial population teen,1313,612,53,19,8,3,0,0,-1,0,0,0
+1,394,393,3,0,0,0,0,0,64,1,-1--1--1,,1|(1583,232)|
+10,395,Initial population child,1317,573,53,19,8,3,0,0,-1,0,0,0
+1,396,395,2,0,0,0,0,0,64,1,-1--1--1,,1|(1477,210)|
+10,397,Initial population adult,1302,663,53,19,8,3,0,0,-1,0,0,0
+1,398,397,4,0,0,0,0,0,64,1,-1--1--1,,1|(1688,255)|
+10,399,Initial population elderly,1297,704,53,19,8,3,0,0,-1,0,0,0
+1,400,399,5,0,0,0,0,0,64,1,-1--1--1,,1|(1780,275)|
+1,401,165,399,1,0,0,0,0,0,0,-1--1--1,,1|(1175,696)|
+1,402,1,399,1,0,0,0,0,0,0,-1--1--1,,1|(1411,665)|
+1,403,164,397,1,0,0,0,0,0,0,-1--1--1,,1|(1193,667)|
+1,404,1,397,1,0,0,0,0,0,0,-1--1--1,,1|(1405,634)|
+1,405,1,393,1,0,0,0,0,0,0,-1--1--1,,1|(1396,600)|
+1,406,163,393,1,0,0,0,0,0,0,-1--1--1,,1|(1201,601)|
+1,407,162,395,1,0,0,0,0,64,0,-1--1--1,,1|(1197,556)|
+1,408,1,395,1,0,0,0,0,64,0,-1--1--1,,1|(1394,564)|
+10,409,Population growth rate,1255,421,37,19,8,3,0,0,0,0,0,0
+1,410,76,409,1,0,0,0,0,128,0,-1--1--1,,1|(1270,328)|
+10,411,Delayed population per zone,1099,489,62,19,8,3,0,0,-1,0,0,0
+1,412,411,409,0,0,0,0,0,64,0,-1--1--1,,1|(1173,456)|
+1,413,1,411,0,0,0,0,0,64,1,-1--1--1,,1|(1293,521)|
+10,414,TIME STEP,1014,529,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,415,414,411,0,0,0,0,0,64,0,-1--1--1,,1|(1041,516)|
+1,416,76,411,0,0,0,0,0,64,0,-1--1--1,,1|(1226,311)|
+10,417,Total population growth rate,1349,-45,52,19,8,3,0,0,0,0,0,0
+10,418,Delayed population in GCA,1499,-61,62,19,8,3,0,0,-1,0,0,0
+1,419,418,417,0,0,0,0,0,64,0,-1--1--1,,1|(1425,-54)|
+1,420,120,417,0,0,0,0,0,64,0,-1--1--1,,1|(1416,3)|
+1,421,1,418,0,0,0,0,0,64,1,-1--1--1,,1|(1480,254)|
+10,422,TIME STEP,1572,21,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,423,120,418,0,0,0,0,0,64,0,-1--1--1,,1|(1483,-2)|
+10,424,One year,1566,-14,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,425,424,418,0,0,0,0,0,64,0,-1--1--1,,1|(1544,-30)|
+10,426,Population municipality of Copenhagen,893,43,73,19,8,3,0,0,0,0,0,0
+1,427,362,426,0,0,0,0,0,128,0,-1--1--1,,1|(935,143)|
+1,428,373,285,1,0,0,0,0,128,0,-1--1--1,,1|(1000,337)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Modal split
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,50,0
+10,1,Modal split car and AV,2028,713,48,19,8,3,0,0,-1,0,0,0
+10,2,Costs shared car,1824,238,53,11,8,3,0,0,-1,0,0,0
+10,3,Initial average trip distance car,1864,94,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,4,3,2,1,0,0,0,0,0,0,-1--1--1,,1|(1852,166)|
+10,5,Operating costs per km car,1712,88,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,6,5,2,1,0,0,0,0,0,0,-1--1--1,,1|(1775,153)|
+10,7,Value of time car passenger,2125,187,55,19,8,3,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+1,8,7,2,1,0,0,0,0,0,0,-1--1--1,,1|(1968,195)|
+10,9,Attention for AV traffic management,2435,558,60,19,8,3,0,4,-1,0,0,0,128-128-128,255-255-0,|12||128-128-128
+10,10,Costs private AV,2590,749,55,11,8,3,0,0,-1,0,0,0
+10,11,Costs private car,1736,1040,54,11,8,3,0,0,-1,0,0,0
+10,12,Initial average trip distance car,1762,1250,57,19,8,3,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+1,13,12,11,1,0,0,0,0,0,0,-1--1--1,,1|(1741,1146)|
+10,14,Cost and hassle of parking,1472,1199,59,19,8,3,0,0,-1,0,0,0
+1,15,14,11,1,0,0,0,0,0,0,-1--1--1,,1|(1583,1091)|
+10,16,Operating costs per km car,1648,1181,50,19,8,3,0,0,-1,0,0,0
+1,17,16,11,1,0,0,0,0,0,0,-1--1--1,,1|(1677,1100)|
+10,18,Value of time car driver,1962,1184,55,19,8,3,0,0,-1,0,0,0
+1,19,18,11,1,0,0,0,0,0,0,-1--1--1,,1|(1846,1097)|
+10,20,Attention for PT,1700,703,51,11,8,3,0,4,-1,0,0,0,128-128-128,255-255-0,|12||128-128-128
+10,21,Costs shared AV,2476,336,55,11,8,3,0,0,-1,0,0,0
+10,22,Attention for active modes,1784,823,61,19,8,3,0,4,-1,0,0,0,128-128-128,255-255-0,|12||128-128-128
+10,23,Initial average trip distance car,2825,670,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,24,23,10,1,0,0,0,0,0,0,-1--1--1,,1|(2691,677)|
+10,25,Value of time in private AV,2833,770,50,19,8,3,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+1,26,25,10,1,0,0,0,0,0,0,-1--1--1,,1|(2711,742)|
+10,27,Initial average trip distance car,2461,183,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,28,27,21,1,0,0,0,0,0,0,-1--1--1,,1|(2458,258)|
+10,29,Delay value of time,1463,1380,60,11,8,3,0,0,-1,0,0,0
+1,30,29,14,1,0,0,0,0,0,0,-1--1--1,,1|(1495,1294)|
+10,31,hours of paid parking,1315,1344,42,19,8,3,0,0,-1,0,0,0
+1,32,31,14,1,0,0,0,0,0,0,-1--1--1,,1|(1374,1264)|
+10,33,Idle time car,1200,1271,40,11,8,3,0,0,-1,0,0,0
+1,34,33,14,1,0,0,0,0,0,0,-1--1--1,,1|(1310,1221)|
+10,35,Parking price,1595,1365,42,11,8,3,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+1,36,35,14,1,0,0,0,0,0,0,-1--1--1,,1|(1576,1288)|
+10,37,Time looking for a parking spot,1148,1168,58,19,8,3,0,0,-1,0,0,0
+1,38,37,14,1,0,0,0,0,0,0,-1--1--1,,1|(1308,1161)|
+10,39,Exchange rate DKK to Euro,1278,1063,50,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,40,39,14,1,0,0,0,0,128,0,-1--1--1,,1|(1406,1116)|
+10,41,Empty vehicle trips to avoid parking,833,1362,69,19,8,3,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+1,42,41,37,1,0,0,0,0,0,0,-1--1--1,,1|(986,1300)|
+10,43,Initial time looking for a parking spot,932,1226,69,19,8,3,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+1,44,43,37,1,0,0,0,0,0,0,-1--1--1,,1|(1037,1211)|
+10,45,minutes per hour,983,1042,52,11,8,3,0,0,-1,0,0,0
+1,46,45,37,1,0,0,0,0,0,0,-1--1--1,,1|(1096,1090)|
+10,47,Constant parking hassle,2354,1029,55,19,8,3,0,4,-1,0,0,0,-1--1--1,255-0-0,|12||0-0-0
+1,48,47,11,1,0,0,0,0,64,0,-1--1--1,,1|(2047,1082)|
+1,49,47,10,1,0,0,0,0,64,0,-1--1--1,,1|(2486,891)|
+10,50,Time looking for a parking spot,2837,827,63,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,51,Delay value of time,2769,897,50,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,52,Cost and hassle of parking,2630,848,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,53,52,10,1,0,0,0,0,128,0,-1--1--1,,1|(2613,797)|
+1,54,51,10,1,0,0,0,0,128,0,-1--1--1,,1|(2693,816)|
+1,55,50,10,1,0,0,0,0,128,0,-1--1--1,,1|(2709,771)|
+10,56,Utility private car,1831,883,54,11,8,3,0,0,0,0,0,0
+10,57,Utility private AV,2265,700,55,11,8,3,0,0,0,0,0,0
+10,58,Utility shared AV,2171,478,55,11,8,3,0,0,0,0,0,0
+10,59,Utility shared car,1910,441,53,11,8,3,0,0,0,0,0,0
+10,60,Constant active modes,1730,758,49,19,8,3,0,4,0,0,0,0,-1--1--1,255-0-0,|12||0-0-0
+10,61,Constant private car,1647,530,53,19,8,3,0,4,0,0,0,0,-1--1--1,255-0-0,|12||0-0-0
+10,62,Constant PT,1673,658,40,11,8,3,0,4,0,0,0,0,-1--1--1,255-0-0,|12||0-0-0
+1,63,61,56,1,0,0,0,0,128,0,-1--1--1,,1|(1587,608)|
+10,64,Unallocated land,18,229,43,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,65,Unallocated land,20,160,43,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,66,11,56,1,0,0,0,0,64,0,-1--1--1,,1|(1743,969)|
+1,67,10,57,1,0,0,0,0,64,0,-1--1--1,,1|(2439,708)|
+1,68,9,57,1,0,0,0,0,128,0,-1--1--1,,1|(2371,637)|
+1,69,21,58,1,0,0,0,0,64,0,-1--1--1,,1|(2329,415)|
+1,70,9,58,1,0,0,0,0,128,0,-1--1--1,,1|(2306,503)|
+1,71,2,59,1,0,0,0,0,64,0,-1--1--1,,1|(1855,339)|
+10,72,Travel time,1874,1199,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,73,72,11,1,0,0,0,0,64,0,-1--1--1,,1|(1816,1122)|
+10,74,Travel time,2798,717,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,75,74,10,1,0,0,0,0,64,0,-1--1--1,,1|(2688,711)|
+10,76,Travel time,2555,224,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,77,76,21,1,0,0,0,0,64,0,-1--1--1,,1|(2514,269)|
+10,78,Travel time,1647,116,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,79,78,2,1,0,0,0,0,64,0,-1--1--1,,1|(1732,158)|
+12,80,0,3199,397,70,15,8,135,0,4,-1,0,0,0,-1--1--1,128-128-128,|12||0-0-0
+Global uncertainty
+12,81,0,3200,427,70,15,8,135,0,4,-1,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+Policy
+12,82,0,3199,457,69,14,8,135,0,4,-1,0,0,0,-1--1--1,128-192-255,|12||0-0-0
+AV variable
+12,83,0,3199,489,69,18,8,135,0,4,-1,0,0,0,-1--1--1,255-160-0,|12||0-0-0
+Subscripted per zone
+12,84,0,3199,524,69,18,8,135,0,4,-1,0,0,0,-1--1--1,255-0-0,|12||0-0-0
+Scale values
+12,85,0,3200,355,33,11,8,7,0,0,-1,0,0,0
+LEGEND
+10,86,Attention for car traffic management,1978,940,60,19,8,3,0,4,-1,0,0,0,128-128-128,255-255-0,|12||128-128-128
+1,87,86,56,1,0,0,0,0,128,0,-1--1--1,,1|(1876,921)|
+10,88,Attention for car traffic management,1998,337,65,19,8,2,0,7,-1,0,0,0,128-128-128,255-255-0,|12||128-128-128
+1,89,88,59,1,0,0,0,0,128,0,-1--1--1,,1|(1958,389)|
+10,90,Operating costs per km car,2680,624,58,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,91,90,10,1,0,0,0,0,128,0,-1--1--1,,1|(2631,671)|
+1,92,90,21,1,0,0,0,0,128,0,-1--1--1,,1|(2611,442)|
+1,93,61,59,1,0,0,0,0,64,0,-1--1--1,,1|(1750,442)|
+1,94,61,58,1,0,0,0,0,64,0,-1--1--1,,1|(1885,481)|
+1,95,61,57,1,0,0,0,0,64,0,-1--1--1,,1|(1982,576)|
+1,96,7,21,1,0,0,0,0,128,0,-1--1--1,,1|(2332,237)|
+10,97,Parking price multiplier,1666,1318,43,19,8,3,0,4,0,0,0,0,-1--1--1,255-255-0,|12||0-0-0
+1,98,97,14,1,0,0,0,0,128,0,-1--1--1,,1|(1593,1233)|
+10,99,Initial idle time car,1129,1437,50,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,100,99,33,0,0,0,0,0,64,0,-1--1--1,,1|(1163,1356)|
+10,101,New uses for cars,1220,1375,48,19,8,2,0,7,-1,0,0,0,128-128-128,128-192-255,|12||128-128-128
+1,102,101,33,0,0,0,0,0,64,0,-1--1--1,,1|(1210,1325)|
+10,103,Penetration rate AV,1084,1346,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,104,103,33,0,0,0,0,0,64,0,-1--1--1,,1|(1141,1308)|
+1,105,103,37,0,0,0,0,0,128,0,-1--1--1,,1|(1113,1263)|
+10,106,"2030, fast adoption",1148,1206,55,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,107,Modal split shared vehicle,2156,791,59,19,8,3,0,0,0,0,0,0
+1,108,22,107,0,0,0,0,0,64,0,-1--1--1,,1|(1964,807)|
+1,109,20,107,0,0,0,0,0,64,0,-1--1--1,,1|(1917,744)|
+1,110,60,107,0,0,0,0,0,64,0,-1--1--1,,1|(1931,772)|
+1,111,62,107,0,0,0,0,0,64,0,-1--1--1,,1|(1897,719)|
+1,112,57,107,0,0,0,0,0,64,0,-1--1--1,,1|(2220,737)|
+1,113,56,107,0,0,0,0,0,64,0,-1--1--1,,1|(1976,841)|
+1,114,58,107,0,0,0,0,0,64,0,-1--1--1,,1|(2163,623)|
+1,115,59,107,0,0,0,0,0,64,0,-1--1--1,,1|(2025,606)|
+1,116,107,1,0,0,0,0,0,128,0,-1--1--1,,1|(2097,755)|
+10,117,Modal split private vehicle,1887,651,60,19,8,3,0,0,-1,0,0,0
+1,118,117,1,0,0,0,0,0,64,0,-1--1--1,,1|(1950,679)|
+1,119,22,117,0,0,0,0,0,64,0,-1--1--1,,1|(1831,743)|
+1,120,20,117,0,0,0,0,0,64,0,-1--1--1,,1|(1776,681)|
+1,121,60,117,0,0,0,0,0,64,0,-1--1--1,,1|(1802,708)|
+1,122,62,117,0,0,0,0,0,64,0,-1--1--1,,1|(1763,654)|
+1,123,57,117,0,0,0,0,0,64,0,-1--1--1,,1|(2085,676)|
+1,124,56,117,0,0,0,0,0,64,0,-1--1--1,,1|(1855,777)|
+1,125,58,117,0,0,0,0,0,64,0,-1--1--1,,1|(2041,556)|
+1,126,59,117,0,0,0,0,0,64,0,-1--1--1,,1|(1899,535)|
+10,127,Penetration rate AV,2551,519,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,128,127,10,0,0,0,0,0,64,0,-1--1--1,,1|(2569,631)|
+1,129,127,21,0,0,0,0,0,128,0,-1--1--1,,1|(2514,429)|
+10,130,GCA Modal split car and AV,1405,360,56,19,8,3,0,0,0,0,0,0
+1,131,1,130,1,0,0,0,0,128,0,-1--1--1,,1|(1918,552)|
+///---\\\
+:GRAPH Population_in_GCA
+:TITLE Population in Greater Copenhagen Area
+:X-AXIS Time
+:X-LABEL Time
+:X-MIN 2015
+:X-MAX 2100
+:SCALE
+:VAR Total population in GCA|0.25
+:UNITS Year
+:DATASET 25
+:SCALE
+:VAR Total population in GCA|0.125
+:UNITS Year
+:DATASET 125
+:SCALE
+:VAR Total population in GCA|0.0625
+:UNITS Year
+:DATASET 625
+:SCALE
+:VAR Total population in GCA|0.03125
+:UNITS Year
+:DATASET 3125
+:SCALE
+:VAR Total population in GCA|0.015625
+:UNITS Year
+:DATASET 15625
+:SCALE
+:VAR Total population in GCA|0.0078125
+:UNITS Year
+:DATASET 78125
+:L<%^E!@
+1:0.vdf
+1:4.vdf
+9:0
+22:m * m,m2
+22:person,job
+22:place,job,house
+30:?Tag=Zonedata860.xlsx
+23:0
+15:0,0,0,0,0,0
+19:70,3
+27:2,
+34:0,
+4:Time
+5:Population density[Zone]
+35:Date
+36:YYYY-MM-DD
+37:2000
+38:1
+39:1
+40:0
+41:0
+42:0
+24:2015
+25:2070
+26:2070
+6:Amager
+6:Business
+6:City center
+6:ptype
+6:Zone 1
