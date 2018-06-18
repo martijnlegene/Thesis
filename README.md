@@ -10,3 +10,5 @@ Final model cleaned.mdl contains the SD model in text
 
 PRIM No policy final 5000 runs.ipynb contains the code for 5000 model runs
 
+Prim tests met grouping specifiers.ipynb contains the code for the scenario discovery with PRIM and the graphs with outcomes of the experiments
+
