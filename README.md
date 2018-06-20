@@ -13,3 +13,5 @@ PRIM No policy final 5000 runs.ipynb contains the code for 5000 model runs
 Prim tests and graphs.ipynb contains the code for the scenario discovery with PRIM and the graphs with outcomes of the experiments
 
 Run for each zone v209 na PRIM.ipynb contains the code to create maps and movies to explore the effects per zone on the map of Copenhagen based on a smaller ensemble of runs
+
+Zonedata860.xls includes the input data for each zone
