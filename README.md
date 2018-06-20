@@ -14,4 +14,4 @@ Prim tests and graphs.ipynb contains the code for the scenario discovery with PR
 
 Run for each zone v209 na PRIM.ipynb contains the code to create maps and movies to explore the effects per zone on the map of Copenhagen based on a smaller ensemble of runs
 
-Zonedata860.xls includes the input data for each zone
+Zonedata860.xlsx includes the input data for each zone
